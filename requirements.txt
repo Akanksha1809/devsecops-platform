@@ -3,8 +3,3 @@ uvicorn[standard]==0.54.0
 pydantic==2.14.1
 pydantic-settings==2.16.1
 prometheus-client==0.26.0
-# SCENARIO 4 FIXTURE (docs/FAILURE_SCENARIOS.md): deliberately vulnerable,
-# unused pin to verify the trivy dependency-scan gate catches it.
-# CVE-2020-14343/CVE-2020-1747 are both CRITICAL and real. Removed in the
-# very next commit.
-PyYAML==5.3
