@@ -1,117 +1,111 @@
 # DevSecOps CI/CD Platform
 
-A production-style, fully free/open-source CI/CD platform built as a portfolio project: Jenkins → security gates → Argo CD → Argo Rollouts → Prometheus/Grafana, running locally on `kind`. No paid services, no always-on cloud resources.
+A production-style, fully free/open-source DevSecOps platform, built as a portfolio project and run entirely on a local machine: Jenkins (CI) → security gates (Gitleaks/Trivy/Checkov) → Argo CD (GitOps) → Argo Rollouts (canary delivery) → Prometheus/Alertmanager/Grafana (monitoring) → Vault (secrets). No paid services, no cloud resources, no always-on infrastructure beyond a local `kind` cluster.
 
-**Status: Phase 8 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
+**Status: all 9 phases complete.** Every claim in this README and the linked docs has been executed and verified at least once — see [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the phase-by-phase record (including the real bugs found and fixed along the way, not just what went right) and [docs/evidence/](docs/evidence/) for raw console output backing every specific claim below.
 
-## What exists right now (Phases 1–8 — verified)
+## The problem this solves
 
-### Secrets management (Vault)
+A small team shipping a service needs: automated testing and security gating before anything reaches production, a deployment mechanism that can't drift from what's declared in Git, a way to catch a bad release before it serves real traffic, visibility into whether the thing is actually healthy, and a way to inject secrets without hardcoding them — all without committing to paid tooling before knowing if the team even needs it. This project builds and verifies that full loop, end to end, on hardware modest enough (8 GB RAM) that the resource math itself had to be part of the design, not an afterthought.
 
-Vault (`vault/`, dev mode — explicitly not a production configuration, see [docs/SECURITY.md](docs/SECURITY.md) §7a) demonstrates real secret injection with no static Vault token anywhere in this repo: the app's initContainer authenticates via the Kubernetes auth method using its own ServiceAccount identity, receives a policy-scoped token good for 5 minutes, fetches one secret, and writes it to a shared volume the main container reads. The main container itself still has zero Kubernetes API access — verified directly (`ls /var/run/secrets/kubernetes.io/` → "No such file or directory"), not assumed from the YAML. A file audit device logs every login and read (values HMAC-hashed, not plaintext).
+## Documentation index
 
-Three real pod crashes were hit and fixed by actually reading the Vault container's entrypoint script rather than guessing flags — full account in [docs/IMPLEMENTATION_PLAN.md §4g](docs/IMPLEMENTATION_PLAN.md).
+| Doc | What's in it |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System diagram, push-to-deploy sequence diagram, tool-by-tool responsibility table |
+| [docs/SETUP.md](docs/SETUP.md) | Full install/bootstrap instructions, step by step |
+| [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | The phase-by-phase build log — every decision, every bug, every piece of evidence |
+| [docs/PIPELINE_WALKTHROUGH.md](docs/PIPELINE_WALKTHROUGH.md) | Every Jenkinsfile stage explained |
+| [docs/SECURITY.md](docs/SECURITY.md) | Tools, policies, every accepted finding with a reason, secrets handling |
+| [docs/FAILURE_SCENARIOS.md](docs/FAILURE_SCENARIOS.md) | All 9 brief-required acceptance scenarios, each actually run |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Real issues hit during development and their fixes |
+| [docs/COSTS_AND_LIMITATIONS.md](docs/COSTS_AND_LIMITATIONS.md) | Cost ($0), licensing, and consolidated known limitations |
+| [docs/INTERVIEW_GUIDE.md](docs/INTERVIEW_GUIDE.md) | Tool rationale/alternatives/trade-offs, security boundaries, Q&A |
+| [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | ~7-minute live walkthrough script + resume bullet points |
 
-```bash
-cd terraform/environments/local
-export VAULT_ADDR=http://localhost:18200   # via: kubectl -n vault port-forward svc/vault 18200:8200
-export VAULT_TOKEN=$(kubectl -n vault logs deployment/vault --tail=50 | grep "Root Token:" | awk '{print $NF}')
-terraform apply   # bootstraps the KV mount, the demo secret, the K8s auth role, and the audit device
-```
-
-### Security posture & Terraform bootstrap
-
-[docs/SECURITY.md](docs/SECURITY.md) consolidates every security finding across all phases — fixed, or accepted with a documented reason, never silently ignored. Terraform (`terraform/`) bootstraps the Argo CD `Application` objects and the Grafana admin Secret — not the cluster itself or the ongoing app resources, which stay Argo CD's job entirely (the boundary is documented in the module itself). Applied for real against the running cluster, including migrating 3 manually-created Applications into Terraform's management and fixing a real multi-tool-ownership conflict with Argo CD (`terraform plan` is clean afterward — verified, not assumed).
-
-```bash
-cd terraform/environments/local
-terraform init && terraform plan && terraform apply
-```
-
-### Monitoring (Prometheus, Alertmanager, Grafana)
-
-Hand-rolled plain Deployments (`monitoring/`) — not the Prometheus Operator/kube-prometheus-stack chart, deliberately, to fit this machine's RAM budget (all 5 components added ~0 measurable change to available cluster memory). Annotation-based Prometheus discovery, not ServiceMonitor CRDs. Alertmanager routes to the app's own new `/webhooks/alerts` endpoint — a free, local notification receiver reusing existing infrastructure instead of standing up another component.
-
-A real alert was fired end-to-end, not just configured: `AppUnavailable` went `pending` → `firing` when dev was genuinely scaled to 0 via Git, Alertmanager got `connection refused` delivering to the now-0-replica app, retried automatically, and succeeded once the app came back — captured with the real payload in [docs/evidence/phase6-alert-firing-transcript.md](docs/evidence/phase6-alert-firing-transcript.md). That run also caught a real bug in the original alert expression (`sum(up{...}) == 0` never matches once a target vanishes entirely from service discovery — fixed to `absent(up{...} == 1)`) and a real limitation (the webhook receiver's in-memory store is per-pod, so only one of two replicas saw the delivery).
+## Quick start
 
 ```bash
-# Bootstrapped by Terraform now (see below), not kubectl apply directly.
-kubectl -n monitoring port-forward svc/grafana 3000:3000   # dashboard: DevSecOps Platform — App & Cluster
+make install && make test       # app only, no cluster needed
+./scripts/bootstrap.sh          # everything else — see docs/SETUP.md for the manual steps this wraps
+./scripts/validate.sh           # automated checks: tests, lint, helm lint, terraform validate, live cluster health
 ```
 
-### Progressive delivery (Argo Rollouts)
-
-The app is now an Argo Rollouts `Rollout` (canary), not a plain Deployment: `setWeight 25 → pause → analysis → setWeight 50 → pause → setWeight 100`, gated by an `AnalysisTemplate` that probes a canary-only Service's `/ready` endpoint — real verification, not "Kubernetes accepted the manifest." Both the good and bad paths were run for real:
-
-- **Good release:** full canary progression to `Healthy`, 3/3 analysis probes passed. [docs/evidence/phase5-good-canary-rollout.txt](docs/evidence/phase5-good-canary-rollout.txt)
-- **Bad release:** a deliberately unhealthy version was caught by the canary pod's own readiness probe before the analysis even ran, the Rollout auto-aborted via `progressDeadlineAbort`, and a continuous probe against the main Service — started *before* the bad release was pushed — recorded **180/180 successful responses** across the whole sequence. [docs/evidence/phase5-availability-during-abort.txt](docs/evidence/phase5-availability-during-abort.txt)
-
-Two real bugs surfaced and fixed along the way, both documented in [docs/IMPLEMENTATION_PLAN.md §4d](docs/IMPLEMENTATION_PLAN.md): kind's CNI turned out to **enforce** NetworkPolicy after all (correcting Phase 3), and a shared (not per-revision) ConfigMap let a bad config value leak into a freshly-scaled-up *stable* pod after the abort.
-
-### GitOps (Argo CD)
-
-Argo CD manages `devsecops-dev` with full automation (auto-sync + selfHeal + prune) and `devsecops-staging` with no automated sync at all — promoting to staging means an explicit `argocd app sync devsecops-app-staging`, which is this project's dev→staging promotion gate. Jenkins never touches the cluster; Argo CD is the only thing that applies Kubernetes changes, reconciling from the `helm/devsecops-app` path in this same repo. The `Application` objects themselves are Terraform-managed as of Phase 7 (`terraform/`) — there's no longer a static `argocd/*.yaml` to `kubectl apply`; that was a real stale duplicate removed once Terraform became the actual source of truth (see `docs/IMPLEMENTATION_PLAN.md` §4g).
-
-Actually demonstrated, not just configured: a manual `kubectl scale --replicas=5` on dev's Rollout was detected as drift and self-healed back to the Git-declared replica count within 5 seconds — transcript in [docs/evidence/phase4-drift-selfheal-transcript.md](docs/evidence/phase4-drift-selfheal-transcript.md) (captured when the workload was still a plain Deployment; Phase 5 switched it to a Rollout, selfHeal behaves the same way). The CI→GitOps handoff (Jenkins auto-bumping the image tag in Git after a publish) isn't wired yet — it depends on the still-deferred GHCR publish from Phase 2.
-
-```bash
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
-cd terraform/environments/local && terraform init && terraform apply
-argocd app sync devsecops-app-staging   # explicit promotion, dev auto-syncs on its own
-```
-
-### Kubernetes (kind + Helm)
-
-A dedicated single-node kind cluster (`kubernetes/kind-config.yaml`, cluster name `devsecops-platform` — separate from any other kind cluster on the machine) runs the app via the Helm chart in `helm/devsecops-app/`, with separate `values-dev.yaml`/`values-staging.yaml` overlays (namespace, replica count). Security posture actually verified by `kubectl exec`, not just declared: runs as UID 999 (non-root), root filesystem is genuinely read-only, no ServiceAccount token mounted. A NetworkPolicy is included and checkov-validated but **not enforced** — kind's default CNI doesn't implement NetworkPolicy; see IMPLEMENTATION_PLAN.md §4b. No Ingress, HPA, or PDB yet — each is deliberately deferred with a documented reason, not silently skipped.
-
-As of Phase 4, Argo CD (below) owns the actual deploys — `helm install` directly is still useful for local iteration before pushing, but the cluster's dev/staging namespaces are now reconciled from Git, not from a developer's local `helm install`.
-
-```bash
-kind create cluster --config kubernetes/kind-config.yaml
-kind load docker-image devsecops-platform-app:dev --name devsecops-platform
-kubectl -n devsecops-dev port-forward svc/devsecops-app 8000:8000   # see §4b for why port-forward, not the NodePort
-```
+## Components (what's built, what's verified)
 
 ### CI (Jenkins)
 
-Jenkins runs as a container (`docker/jenkins/`) that only has `docker-cli` baked into it — every pipeline tool (python, gitleaks, trivy, checkov) runs as its own short-lived sibling container reached via `docker run --volumes-from <jenkins-container>`, so Jenkins' own image stays small. The `Jenkinsfile` pipeline: checkout → install deps (cached) → lint/format → unit tests → integration tests → coverage + threshold gate → gitleaks → trivy (deps) → checkov (IaC, soft-fail) → build image → trivy (image, fails on CRITICAL) → CycloneDX SBOM → optional GHCR publish → build summary.
+Jenkins runs as a container with only `docker-cli` baked into it — every pipeline tool (Python, Gitleaks, Trivy, Checkov, Terraform) runs as its own short-lived sibling container via `docker run --volumes-from <jenkins-container>`, so Jenkins' own image stays small. Pipeline: checkout → deps (cached) → lint/format → unit tests → integration tests → coverage gate → Gitleaks → Trivy (deps) → `terraform fmt`/`validate` → Checkov (4 frameworks: Dockerfile/Kubernetes/Helm/Terraform, soft-fail) → build → Trivy (image, fails on CRITICAL) → CycloneDX SBOM → optional GHCR publish → build summary. Full detail: [docs/PIPELINE_WALKTHROUGH.md](docs/PIPELINE_WALKTHROUGH.md).
 
-This has actually been run: build #3 of `devsecops-platform-pipeline` finished green with 18/18 tests, 97.79% coverage, 0 leaks, 0 CRITICAL vulnerabilities, and a real SBOM — evidence archived at [docs/evidence/](docs/evidence/). GHCR publish is wired but not yet exercised (needs a PAT with `write:packages`, which the existing `gh` token doesn't have — see IMPLEMENTATION_PLAN.md §4a); it falls back to "image stays local" gracefully when that credential is missing.
-
-```bash
-cd docker/jenkins
-cp .env.example .env   # set JENKINS_ADMIN_PASSWORD
-docker-compose up -d
-# UI at http://localhost:8080
-```
-
-### App (Phase 1)
-
-- `app/` — a FastAPI service (`devsecops-platform-app`) with:
-  - `GET /health` (liveness), `GET /ready` (readiness — can be forced unhealthy via `APP_SIMULATE_UNHEALTHY=true`, used later for rollout-failure demos)
-  - `GET /metrics` (Prometheus text format: request count + latency histogram by method/path/status)
-  - `GET/POST/PATCH/DELETE /api/v1/tasks` — a small in-memory CRUD API with Pydantic validation and proper 404/422 handling
-  - structured JSON logging for the app's own logger (uvicorn's own access/error logs are **not** JSON-formatted — known limitation, documented, not hidden)
-  - configuration entirely via `APP_*` environment variables
-- `tests/` — 15 pytest tests, 98% statement coverage on `app/`
-- `Dockerfile` — multi-stage, non-root user, pinned base image tag, `HEALTHCHECK`, no `latest` tags
-- A Day-0 Trivy scan of the built image is archived at `docs/evidence/phase1-trivy-baseline.txt` — real findings in the base image/transitive Python deps (not fabricated), to be acted on when the security-gate phase (Phase 7) wires scanning into the pipeline with an actual severity policy.
-
-All of the above has actually been run: `pytest` passes, the image builds, and the running container was curl-tested for every endpoint above (200/201/404/422/503 paths) and confirmed to run as a non-root user.
-
-## Running it locally
+Verified repeatedly, including three deliberate failure runs (a broken test, a planted secret, a CVE-pinned dependency) that each correctly stopped the pipeline before an image could be built — see [docs/FAILURE_SCENARIOS.md](docs/FAILURE_SCENARIOS.md) Scenarios 2–4. GHCR publish is wired but not yet exercised (no `write:packages` token on the local `gh` CLI — [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) §4a); it falls back to "image stays local" gracefully.
 
 ```bash
-# Python path (requires python3.12)
-make install
-make test
-make run        # http://localhost:8000
-
-# Docker path
-make build
-make run-image   # http://localhost:8000
+cd docker/jenkins && cp .env.example .env && docker-compose up -d   # http://localhost:8080
 ```
 
-## Not built yet
+### GitOps (Argo CD)
 
-The 9 acceptance scenarios from the brief, plus the final docs/demo-script/resume-bullets deliverables — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+Argo CD manages `devsecops-dev` with full automation (auto-sync + selfHeal + prune) and `devsecops-staging` with no automated sync — promoting to staging means an explicit `argocd app sync devsecops-app-staging`, this project's dev→staging gate. Jenkins never touches the cluster. The `Application` objects are Terraform-managed, not static YAML (a real stale-duplicate cleanup — [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) §4g).
+
+A manual `kubectl scale --replicas=5` was detected as drift and self-healed back to the Git-declared count within 5 seconds — [docs/evidence/phase4-drift-selfheal-transcript.md](docs/evidence/phase4-drift-selfheal-transcript.md).
+
+### Progressive delivery (Argo Rollouts)
+
+The app is an Argo Rollouts canary, not a plain Deployment: `setWeight 25 → pause → analysis → setWeight 50 → pause → setWeight 100`, gated by an `AnalysisTemplate` probing a canary-only Service. Both paths run for real:
+
+- **Good release**: full progression to `Healthy`, 3/3 analysis probes passed — [docs/evidence/phase5-good-canary-rollout.txt](docs/evidence/phase5-good-canary-rollout.txt)
+- **Bad release**: caught by the canary's own readiness probe, auto-aborted via `progressDeadlineAbort`, **180/180** continuous availability probes succeeded throughout — [docs/evidence/phase5-availability-during-abort.txt](docs/evidence/phase5-availability-during-abort.txt)
+
+### Kubernetes (kind + Helm)
+
+A dedicated single-node kind cluster runs the app via `helm/devsecops-app/`, with dev/staging value overlays. Security posture verified by `kubectl exec`, not just declared: non-root UID, genuinely read-only root filesystem, no unnecessary ServiceAccount tokens. Ingress/HPA/PDB deliberately deferred, each with a documented reason — [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) §4b.
+
+### Monitoring (Prometheus, Alertmanager, Grafana)
+
+Hand-rolled plain Deployments — not the Operator-based kube-prometheus-stack chart, to fit this machine's RAM budget. A real alert fired end-to-end: `AppUnavailable` went `pending → firing` on a genuine GitOps-declared failure, Alertmanager retried through a real delivery failure and succeeded once the app recovered — [docs/evidence/phase6-alert-firing-transcript.md](docs/evidence/phase6-alert-firing-transcript.md). Found and fixed a real alert-expression bug in the process.
+
+```bash
+kubectl -n monitoring port-forward svc/grafana 3000:3000   # "DevSecOps Platform — App & Cluster" dashboard
+```
+
+### Secrets (Vault)
+
+Dev mode, explicitly not production. The app's initContainer authenticates via its own Kubernetes identity (no static Vault token anywhere in this repo), fetches one secret, and the main app container — verified to have zero Kubernetes API access of its own — reads it from a shared volume. Three real pod crashes were diagnosed by reading the actual entrypoint script, not guessing flags — [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) §4g.
+
+### Security & Terraform bootstrap
+
+[docs/SECURITY.md](docs/SECURITY.md) consolidates every finding across every phase. Terraform bootstraps the Argo CD `Application` objects, Vault's internal config, and the Grafana Secret — never the cluster itself or anything Argo CD/Vault manage ongoing. A real multi-tool-ownership conflict with Argo CD was found and fixed (`lifecycle.ignore_changes`); `terraform plan` is clean afterward.
+
+```bash
+cd terraform/environments/local && terraform init && terraform plan && terraform apply
+```
+
+### The app
+
+A small FastAPI service (`app/`): `/health`, `/ready` (can be forced unhealthy via `APP_SIMULATE_UNHEALTHY=true`, used for the rollout-failure demos), `/metrics` (Prometheus format), a CRUD `/api/v1/tasks` API, and `/webhooks/alerts` (the free local Alertmanager receiver). 23 tests, ~99% coverage. Multi-stage Dockerfile, non-root, `HEALTHCHECK`, no floating deployment tags.
+
+## Simulating failures
+
+See [docs/FAILURE_SCENARIOS.md](docs/FAILURE_SCENARIOS.md) for all 9 scenarios with exact commands, expected vs. actual results, and cleanup steps.
+
+## Known limitations, costs, and licensing
+
+See [docs/COSTS_AND_LIMITATIONS.md](docs/COSTS_AND_LIMITATIONS.md). Short version: $0 cost, everything free/open-source, no cloud resources ever created; the main limitations are Vault/Terraform-state being explicitly non-production-grade, no centralized logging, and a real Colima NodePort quirk on this specific machine (workaround documented).
+
+## Screenshots
+
+Not yet captured — this project prioritized real, scripted, reproducible verification (console logs, curl output, `kubectl` state) over screenshots, since every piece of evidence in `docs/evidence/` can be independently reproduced by re-running the same commands. Grafana/Argo CD/Argo Rollouts UI screenshots would be a reasonable addition for a more visual portfolio presentation — noted under Future enhancements.
+
+## Future enhancements
+
+- Exercise the GHCR publish path for real (needs a `write:packages` token)
+- Image signing/provenance (cosign, SLSA)
+- A remote Terraform backend with state locking
+- Centralized logging (Loki or similar)
+- Per-component NetworkPolicies for the monitoring stack
+- Vault in HA mode with a real storage backend, as a deliberate contrast to the dev-mode setup here
+- UI screenshots for a more visual presentation
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
