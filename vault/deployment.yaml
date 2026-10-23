@@ -48,6 +48,18 @@ spec:
       serviceAccountName: vault
       automountServiceAccountToken: true
       securityContext:
+        # Real finding (read the actual entrypoint script to confirm,
+        # not assumed): it only tries to su-exec from root down to the
+        # image's own "vault" user (uid 100, gid 1000) when it detects
+        # it's running as uid 0. su-exec itself then failed under our
+        # dropped capabilities ("setgroups: Operation not permitted").
+        # Starting directly as uid 100 skips that whole privilege-drop
+        # path, which is also strictly more locked-down than relying on
+        # a root->non-root transition inside the container.
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+        fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -61,6 +73,11 @@ spec:
             # it: "Permission denied") and isn't needed anyway -- the
             # `-dev` server flags below are already everything dev mode
             # requires.
+            # SKIP_CHOWN: the chown-logs/chown-file steps only apply when
+            # running as root; irrelevant now, but explicit rather than
+            # relying on the uid-100 path never reaching that branch.
+            - name: SKIP_CHOWN
+              value: "true"
             - name: VAULT_ADDR
               value: "http://127.0.0.1:8200"
             # The entrypoint's setcap(cap_ipc_lock) step needs
