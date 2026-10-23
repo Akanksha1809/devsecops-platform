@@ -2,9 +2,21 @@
 
 A production-style, fully free/open-source CI/CD platform built as a portfolio project: Jenkins → security gates → Argo CD → Argo Rollouts → Prometheus/Grafana, running locally on `kind`. No paid services, no always-on cloud resources.
 
-**Status: Phase 5 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
+**Status: Phase 6 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
 
-## What exists right now (Phases 1–5 — verified)
+## What exists right now (Phases 1–6 — verified)
+
+### Monitoring (Prometheus, Alertmanager, Grafana)
+
+Hand-rolled plain Deployments (`monitoring/`) — not the Prometheus Operator/kube-prometheus-stack chart, deliberately, to fit this machine's RAM budget (all 5 components added ~0 measurable change to available cluster memory). Annotation-based Prometheus discovery, not ServiceMonitor CRDs. Alertmanager routes to the app's own new `/webhooks/alerts` endpoint — a free, local notification receiver reusing existing infrastructure instead of standing up another component.
+
+A real alert was fired end-to-end, not just configured: `AppUnavailable` went `pending` → `firing` when dev was genuinely scaled to 0 via Git, Alertmanager got `connection refused` delivering to the now-0-replica app, retried automatically, and succeeded once the app came back — captured with the real payload in [docs/evidence/phase6-alert-firing-transcript.md](docs/evidence/phase6-alert-firing-transcript.md). That run also caught a real bug in the original alert expression (`sum(up{...}) == 0` never matches once a target vanishes entirely from service discovery — fixed to `absent(up{...} == 1)`) and a real limitation (the webhook receiver's in-memory store is per-pod, so only one of two replicas saw the delivery).
+
+```bash
+kubectl apply -f argocd/application-monitoring.yaml
+kubectl -n monitoring create secret generic grafana-admin-credentials --from-literal=admin-password=CHANGE_ME
+kubectl -n monitoring port-forward svc/grafana 3000:3000   # dashboard: DevSecOps Platform — App & Cluster
+```
 
 ### Progressive delivery (Argo Rollouts)
 
@@ -81,4 +93,4 @@ make run-image   # http://localhost:8000
 
 ## Not built yet
 
-Monitoring stack, Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).

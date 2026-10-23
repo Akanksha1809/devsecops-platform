@@ -1,0 +1,29 @@
+NAMESPACE            NAME                                                       READY   STATUS    RESTARTS   AGE     IP            NODE                               NOMINATED NODE   READINESS GATES
+argo-rollouts        argo-rollouts-6f8d57969-jfxj8                              1/1     Running   0          74m     10.244.0.22   devsecops-platform-control-plane   <none>           <none>
+argocd               argocd-application-controller-0                            1/1     Running   0          88m     10.244.0.14   devsecops-platform-control-plane   <none>           <none>
+argocd               argocd-redis-869b85489d-n48vx                              1/1     Running   0          88m     10.244.0.11   devsecops-platform-control-plane   <none>           <none>
+argocd               argocd-repo-server-5bf66565cd-xw8nh                        1/1     Running   0          88m     10.244.0.12   devsecops-platform-control-plane   <none>           <none>
+argocd               argocd-server-7474bb8f76-tb7xq                             1/1     Running   0          88m     10.244.0.13   devsecops-platform-control-plane   <none>           <none>
+devsecops-dev        devsecops-app-67895bd7dc-9fxtd                             1/1     Running   0          107s    10.244.0.51   devsecops-platform-control-plane   <none>           <none>
+devsecops-dev        devsecops-app-67895bd7dc-wff6n                             1/1     Running   0          107s    10.244.0.50   devsecops-platform-control-plane   <none>           <none>
+kube-system          coredns-589f44dc88-4b7tb                                   1/1     Running   0          101m    10.244.0.4    devsecops-platform-control-plane   <none>           <none>
+kube-system          coredns-589f44dc88-jtjht                                   1/1     Running   0          101m    10.244.0.2    devsecops-platform-control-plane   <none>           <none>
+kube-system          etcd-devsecops-platform-control-plane                      1/1     Running   0          101m    172.18.0.3    devsecops-platform-control-plane   <none>           <none>
+kube-system          kindnet-qbjdr                                              1/1     Running   0          101m    172.18.0.3    devsecops-platform-control-plane   <none>           <none>
+kube-system          kube-apiserver-devsecops-platform-control-plane            1/1     Running   0          101m    172.18.0.3    devsecops-platform-control-plane   <none>           <none>
+kube-system          kube-controller-manager-devsecops-platform-control-plane   1/1     Running   0          101m    172.18.0.3    devsecops-platform-control-plane   <none>           <none>
+kube-system          kube-proxy-654fd                                           1/1     Running   0          101m    172.18.0.3    devsecops-platform-control-plane   <none>           <none>
+kube-system          kube-scheduler-devsecops-platform-control-plane            1/1     Running   0          101m    172.18.0.3    devsecops-platform-control-plane   <none>           <none>
+kube-system          kube-state-metrics-5597b75dff-gkrbh                        1/1     Running   0          16m     10.244.0.45   devsecops-platform-control-plane   <none>           <none>
+local-path-storage   local-path-provisioner-855c7b7774-bz8ff                    1/1     Running   0          101m    10.244.0.3    devsecops-platform-control-plane   <none>           <none>
+monitoring           alertmanager-66cf9fb484-ts9j2                              1/1     Running   0          16m     10.244.0.42   devsecops-platform-control-plane   <none>           <none>
+monitoring           grafana-84cccfdb79-g7rmv                                   1/1     Running   0          16m     10.244.0.43   devsecops-platform-control-plane   <none>           <none>
+monitoring           node-exporter-n59rh                                        1/1     Running   0          16m     172.18.0.3    devsecops-platform-control-plane   <none>           <none>
+monitoring           prometheus-66cc6bff7b-bczt4                                1/1     Running   0          3m51s   10.244.0.49   devsecops-platform-control-plane   <none>           <none>
+=== prometheus targets ===
+argo-rollouts up
+kube-state-metrics up
+kubernetes-pods up
+kubernetes-pods up
+node-exporter up
+prometheus up
