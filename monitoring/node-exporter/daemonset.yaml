@@ -37,6 +37,14 @@ spec:
         # compatible with node-exporter's normal operation.
         seccompProfile:
           type: RuntimeDefault
+        # The image already defaults to this (verified: `kubectl exec
+        # daemonset/node-exporter -- id` -> uid=65534(nobody)) -- made
+        # explicit so checkov can verify it statically too (CKV_K8S_23)
+        # and so Kubernetes itself would refuse to start this pod if a
+        # future image change ever tried to default to root.
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
       tolerations:
         - effect: NoSchedule
           operator: Exists
