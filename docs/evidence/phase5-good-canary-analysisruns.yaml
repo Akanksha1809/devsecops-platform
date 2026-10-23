@@ -1,0 +1,156 @@
+apiVersion: v1
+items:
+- apiVersion: argoproj.io/v1alpha1
+  kind: AnalysisRun
+  metadata:
+    annotations:
+      rollout.argoproj.io/revision: "2"
+    creationTimestamp: "2026-10-23T13:38:32Z"
+    generation: 6
+    labels:
+      app.kubernetes.io/instance: devsecops-app-dev
+      app.kubernetes.io/name: devsecops-app
+      rollout-type: Step
+      rollouts-pod-template-hash: 6d4945948b
+      step-index: "2"
+    name: devsecops-app-6d4945948b-2-2
+    namespace: devsecops-dev
+    ownerReferences:
+    - apiVersion: argoproj.io/v1alpha1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Rollout
+      name: devsecops-app
+      uid: 9876d1b8-e17f-45d3-a375-e09ca6ab5044
+    resourceVersion: "4913"
+    uid: bb60795e-cd83-4cb9-8048-9eb616ea65db
+  spec:
+    metrics:
+    - count: 3
+      failureCondition: result.status != 'ready'
+      failureLimit: 0
+      interval: 5s
+      name: canary-ready-probe
+      provider:
+        web:
+          authentication:
+            oauth2: {}
+            sigv4: {}
+          jsonPath: '{$}'
+          timeoutSeconds: 5
+          url: http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready
+      successCondition: result.status == 'ready'
+  status:
+    completedAt: "2026-10-23T13:39:37Z"
+    dryRunSummary: {}
+    message: 'Metric "canary-ready-probe" assessed Error due to consecutiveErrors
+      (5) > consecutiveErrorLimit (4): "Error Message: Get "http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready":
+      context deadline exceeded (Client.Timeout exceeded while awaiting headers)"'
+    metricResults:
+    - consecutiveError: 5
+      error: 5
+      measurements:
+      - finishedAt: "2026-10-23T13:38:37Z"
+        message: 'Get "http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready":
+          context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+        phase: Error
+        startedAt: "2026-10-23T13:38:32Z"
+      - finishedAt: "2026-10-23T13:38:52Z"
+        message: 'Get "http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready":
+          context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+        phase: Error
+        startedAt: "2026-10-23T13:38:47Z"
+      - finishedAt: "2026-10-23T13:39:07Z"
+        message: 'Get "http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready":
+          context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+        phase: Error
+        startedAt: "2026-10-23T13:39:02Z"
+      - finishedAt: "2026-10-23T13:39:22Z"
+        message: 'Get "http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready":
+          context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+        phase: Error
+        startedAt: "2026-10-23T13:39:17Z"
+      - finishedAt: "2026-10-23T13:39:37Z"
+        message: 'Get "http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready":
+          context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+        phase: Error
+        startedAt: "2026-10-23T13:39:32Z"
+      message: 'Get "http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready":
+        context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+      name: canary-ready-probe
+      phase: Error
+    phase: Error
+    runSummary:
+      count: 1
+      error: 1
+    startedAt: "2026-10-23T13:38:37Z"
+- apiVersion: argoproj.io/v1alpha1
+  kind: AnalysisRun
+  metadata:
+    annotations:
+      rollout.argoproj.io/revision: "2"
+    creationTimestamp: "2026-10-23T13:42:05Z"
+    generation: 4
+    labels:
+      app.kubernetes.io/instance: devsecops-app-dev
+      app.kubernetes.io/name: devsecops-app
+      rollout-type: Step
+      rollouts-pod-template-hash: 6d4945948b
+      step-index: "2"
+    name: devsecops-app-6d4945948b-2-2.1
+    namespace: devsecops-dev
+    ownerReferences:
+    - apiVersion: argoproj.io/v1alpha1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Rollout
+      name: devsecops-app
+      uid: 9876d1b8-e17f-45d3-a375-e09ca6ab5044
+    resourceVersion: "5390"
+    uid: 03add258-5f99-4635-ad5b-37b9a4cc7c40
+  spec:
+    metrics:
+    - count: 3
+      failureCondition: result.status != 'ready'
+      failureLimit: 0
+      interval: 5s
+      name: canary-ready-probe
+      provider:
+        web:
+          authentication:
+            oauth2: {}
+            sigv4: {}
+          jsonPath: '{$}'
+          timeoutSeconds: 5
+          url: http://devsecops-app-canary.devsecops-dev.svc.cluster.local:8000/ready
+      successCondition: result.status == 'ready'
+  status:
+    completedAt: "2026-10-23T13:42:15Z"
+    dryRunSummary: {}
+    metricResults:
+    - consecutiveSuccess: 3
+      count: 3
+      measurements:
+      - finishedAt: "2026-10-23T13:42:05Z"
+        phase: Successful
+        startedAt: "2026-10-23T13:42:05Z"
+        value: '{"status":"ready"}'
+      - finishedAt: "2026-10-23T13:42:10Z"
+        phase: Successful
+        startedAt: "2026-10-23T13:42:10Z"
+        value: '{"status":"ready"}'
+      - finishedAt: "2026-10-23T13:42:15Z"
+        phase: Successful
+        startedAt: "2026-10-23T13:42:15Z"
+        value: '{"status":"ready"}'
+      name: canary-ready-probe
+      phase: Successful
+      successful: 3
+    phase: Successful
+    runSummary:
+      count: 1
+      successful: 1
+    startedAt: "2026-10-23T13:42:05Z"
+kind: List
+metadata:
+  resourceVersion: ""

@@ -1,0 +1,27 @@
+Name:            devsecops-app
+Namespace:       devsecops-dev
+Status:          [32m✔[0m Healthy
+Strategy:        Canary
+  Step:          6/6
+  SetWeight:     100
+  ActualWeight:  100
+Images:          devsecops-platform-app:dev ([32mstable[0m)
+Replicas:
+  Desired:       4
+  Current:       4
+  Updated:       4
+  Ready:         4
+  Available:     4
+
+NAME                                       KIND         STATUS        AGE    INFO
+⟳ devsecops-app                            Rollout      [32m✔[0m Healthy     5m50s  
+├──# revision:2                                                              
+│  ├──⧉ [32mdevsecops-app-6d4945948b[0m           ReplicaSet   [32m✔[0m Healthy     4m38s  [32mstable[0m
+│  │  ├──□ devsecops-app-6d4945948b-gcrmf  Pod          [32m✔[0m Running     64s    ready:1/1
+│  │  ├──□ devsecops-app-6d4945948b-m58cm  Pod          [32m✔[0m Running     37s    ready:1/1
+│  │  ├──□ devsecops-app-6d4945948b-s4p97  Pod          [32m✔[0m Running     20s    ready:1/1
+│  │  └──□ devsecops-app-6d4945948b-xhkrw  Pod          [32m✔[0m Running     20s    ready:1/1
+│  ├──α [0mdevsecops-app-6d4945948b-2-2[0m       AnalysisRun  [31m⚠[0m Error       4m20s  [31m⚠[0m 5
+│  └──α [0mdevsecops-app-6d4945948b-2-2.1[0m     AnalysisRun  [32m✔[0m Successful  47s    [32m✔[0m 3
+└──# revision:1                                                              
+   └──⧉ devsecops-app-647c4d6f66           ReplicaSet   [0m•[0m ScaledDown  5m50s  
