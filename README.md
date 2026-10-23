@@ -2,18 +2,31 @@
 
 A production-style, fully free/open-source CI/CD platform built as a portfolio project: Jenkins → security gates → Argo CD → Argo Rollouts → Prometheus/Grafana, running locally on `kind`. No paid services, no always-on cloud resources.
 
-**Status: Phase 3 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
+**Status: Phase 4 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
 
-## What exists right now (Phases 1–3 — verified)
+## What exists right now (Phases 1–4 — verified)
+
+### GitOps (Argo CD)
+
+Argo CD (`argocd/`) manages `devsecops-dev` with full automation (auto-sync + selfHeal + prune) and `devsecops-staging` with no automated sync at all — promoting to staging means an explicit `argocd app sync devsecops-app-staging`, which is this project's dev→staging promotion gate. Jenkins never touches the cluster; Argo CD is the only thing that applies Kubernetes changes, reconciling from the `helm/devsecops-app` path in this same repo.
+
+Actually demonstrated, not just configured: a manual `kubectl scale --replicas=5` on the dev Deployment was detected as drift and self-healed back to 1 replica within 5 seconds — transcript in [docs/evidence/phase4-drift-selfheal-transcript.md](docs/evidence/phase4-drift-selfheal-transcript.md). The CI→GitOps handoff (Jenkins auto-bumping the image tag in Git after a publish) isn't wired yet — it depends on the still-deferred GHCR publish from Phase 2.
+
+```bash
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
+kubectl apply -f argocd/application-dev.yaml -f argocd/application-staging.yaml
+argocd app sync devsecops-app-staging   # explicit promotion, dev auto-syncs on its own
+```
 
 ### Kubernetes (kind + Helm)
 
 A dedicated single-node kind cluster (`kubernetes/kind-config.yaml`, cluster name `devsecops-platform` — separate from any other kind cluster on the machine) runs the app via the Helm chart in `helm/devsecops-app/`, with separate `values-dev.yaml`/`values-staging.yaml` overlays (namespace, replica count). Security posture actually verified by `kubectl exec`, not just declared: runs as UID 999 (non-root), root filesystem is genuinely read-only, no ServiceAccount token mounted. A NetworkPolicy is included and checkov-validated but **not enforced** — kind's default CNI doesn't implement NetworkPolicy; see IMPLEMENTATION_PLAN.md §4b. No Ingress, HPA, or PDB yet — each is deliberately deferred with a documented reason, not silently skipped.
 
+As of Phase 4, Argo CD (below) owns the actual deploys — `helm install` directly is still useful for local iteration before pushing, but the cluster's dev/staging namespaces are now reconciled from Git, not from a developer's local `helm install`.
+
 ```bash
 kind create cluster --config kubernetes/kind-config.yaml
 kind load docker-image devsecops-platform-app:dev --name devsecops-platform
-helm install devsecops-app helm/devsecops-app -n devsecops-dev -f helm/devsecops-app/values-dev.yaml --create-namespace
 kubectl -n devsecops-dev port-forward svc/devsecops-app 8000:8000   # see §4b for why port-forward, not the NodePort
 ```
 
@@ -59,4 +72,4 @@ make run-image   # http://localhost:8000
 
 ## Not built yet
 
-Argo CD/Rollouts, monitoring stack, Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+Argo Rollouts, monitoring stack, Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).

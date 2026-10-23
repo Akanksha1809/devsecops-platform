@@ -1,0 +1,146 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"name":"devsecops-app-dev","namespace":"argocd"},"spec":{"destination":{"namespace":"devsecops-dev","server":"https://kubernetes.default.svc"},"project":"default","source":{"helm":{"valueFiles":["values-dev.yaml"]},"path":"helm/devsecops-app","repoURL":"https://github.com/Akanksha1809/devsecops-platform.git","targetRevision":"main"},"syncPolicy":{"automated":{"prune":true,"selfHeal":true},"syncOptions":["CreateNamespace=true"]}}}
+  creationTimestamp: "2026-10-23T13:21:15Z"
+  generation: 17
+  name: devsecops-app-dev
+  namespace: argocd
+  resourceVersion: "2851"
+  uid: 52eccecb-6781-48f1-9bc1-12c04a8502d2
+spec:
+  destination:
+    namespace: devsecops-dev
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    helm:
+      valueFiles:
+      - values-dev.yaml
+    path: helm/devsecops-app
+    repoURL: https://github.com/Akanksha1809/devsecops-platform.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+status:
+  controllerNamespace: argocd
+  health:
+    lastTransitionTime: "2026-10-23T13:22:28Z"
+    status: Healthy
+  history:
+  - deployStartedAt: "2026-10-23T13:21:21Z"
+    deployedAt: "2026-10-23T13:21:22Z"
+    id: 0
+    initiatedBy:
+      automated: true
+    revision: 01b4be1672a6a44c77206c467192d243382bb0f4
+    source:
+      helm:
+        valueFiles:
+        - values-dev.yaml
+      path: helm/devsecops-app
+      repoURL: https://github.com/Akanksha1809/devsecops-platform.git
+      targetRevision: main
+  operationState:
+    finishedAt: "2026-10-23T13:22:27Z"
+    message: successfully synced (all tasks run)
+    operation:
+      initiatedBy:
+        automated: true
+      retry:
+        limit: 5
+      sync:
+        autoHealAttemptsCount: 1
+        prune: true
+        resources:
+        - group: apps
+          kind: Deployment
+          name: devsecops-app
+        revision: 01b4be1672a6a44c77206c467192d243382bb0f4
+        source:
+          helm:
+            valueFiles:
+            - values-dev.yaml
+          path: helm/devsecops-app
+          repoURL: https://github.com/Akanksha1809/devsecops-platform.git
+          targetRevision: main
+        syncOptions:
+        - CreateNamespace=true
+    phase: Succeeded
+    startedAt: "2026-10-23T13:22:26Z"
+    syncResult:
+      resources:
+      - group: apps
+        hookPhase: Running
+        images:
+        - devsecops-platform-app:dev
+        kind: Deployment
+        message: deployment.apps/devsecops-app configured
+        name: devsecops-app
+        namespace: devsecops-dev
+        status: Synced
+        syncPhase: Sync
+        version: v1
+      revision: 01b4be1672a6a44c77206c467192d243382bb0f4
+      source:
+        helm:
+          valueFiles:
+          - values-dev.yaml
+        path: helm/devsecops-app
+        repoURL: https://github.com/Akanksha1809/devsecops-platform.git
+        targetRevision: main
+  reconciledAt: "2026-10-23T13:22:27Z"
+  resourceHealthSource: appTree
+  resources:
+  - kind: ConfigMap
+    name: devsecops-app-config
+    namespace: devsecops-dev
+    status: Synced
+    version: v1
+  - kind: Service
+    name: devsecops-app
+    namespace: devsecops-dev
+    status: Synced
+    version: v1
+  - kind: ServiceAccount
+    name: devsecops-app
+    namespace: devsecops-dev
+    status: Synced
+    version: v1
+  - group: apps
+    kind: Deployment
+    name: devsecops-app
+    namespace: devsecops-dev
+    status: Synced
+    version: v1
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+    name: devsecops-app
+    namespace: devsecops-dev
+    status: Synced
+    version: v1
+  sourceHydrator: {}
+  sourceType: Helm
+  summary:
+    images:
+    - devsecops-platform-app:dev
+  sync:
+    comparedTo:
+      destination:
+        namespace: devsecops-dev
+        server: https://kubernetes.default.svc
+      source:
+        helm:
+          valueFiles:
+          - values-dev.yaml
+        path: helm/devsecops-app
+        repoURL: https://github.com/Akanksha1809/devsecops-platform.git
+        targetRevision: main
+    revision: 01b4be1672a6a44c77206c467192d243382bb0f4
+    status: Synced

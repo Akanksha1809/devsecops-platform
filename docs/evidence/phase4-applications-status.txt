@@ -1,0 +1,3 @@
+NAME                    SYNC STATUS   HEALTH STATUS
+devsecops-app-dev       Synced        Healthy
+devsecops-app-staging   Synced        Healthy
