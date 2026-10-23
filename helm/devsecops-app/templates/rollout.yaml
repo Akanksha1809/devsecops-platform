@@ -52,6 +52,31 @@ spec:
       automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.vault.enabled }}
+      initContainers:
+        - name: vault-secret-fetch
+          image: {{ .Values.vault.image }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              LOGIN_TOKEN=$(vault write -field=token auth/kubernetes/login \
+                role={{ .Values.vault.role }} jwt=@/var/run/secrets/vault/token)
+              VAULT_TOKEN="$LOGIN_TOKEN" vault kv get -format=json {{ .Values.vault.secretPath }} \
+                > /vault/secrets/example.json
+          env:
+            - name: VAULT_ADDR
+              value: {{ .Values.vault.address | quote }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: vault-token
+              mountPath: /var/run/secrets/vault
+              readOnly: true
+            - name: vault-secrets
+              mountPath: /vault/secrets
+      {{- end }}
       containers:
         - name: {{ include "devsecops-app.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -90,9 +115,27 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            {{- if .Values.vault.enabled }}
+            - name: vault-secrets
+              mountPath: /vault/secrets
+              readOnly: true
+            {{- end }}
       volumes:
         - name: tmp
           emptyDir: {}
+        {{- if .Values.vault.enabled }}
+        - name: vault-secrets
+          emptyDir: {}
+        - name: vault-token
+          # Scoped to only this initContainer's mount, not pod-wide
+          # automountServiceAccountToken -- the main container above
+          # never gets a Kubernetes API token at all.
+          projected:
+            sources:
+              - serviceAccountToken:
+                  path: token
+                  expirationSeconds: 600
+        {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

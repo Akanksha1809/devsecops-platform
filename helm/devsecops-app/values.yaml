@@ -113,3 +113,20 @@ networkPolicy:
   # version) — confirmed when it silently blocked Argo Rollouts' canary
   # health probes cross-namespace. See docs/IMPLEMENTATION_PLAN.md §4d.
   enabled: true
+
+# Phase 8: demonstrates real secret injection (no static Vault token
+# anywhere in this chart) without the app actually needing the fetched
+# value for anything -- see docs/IMPLEMENTATION_PLAN.md §4g for why that's
+# deliberate, not half-finished. Only the initContainer below gets a
+# ServiceAccount token at all (via its own projected volume, not the pod-
+# wide automountServiceAccountToken, which stays false on the main
+# container per serviceAccount.automountServiceAccountToken above).
+vault:
+  enabled: true
+  image: hashicorp/vault:1.18
+  address: http://vault.vault.svc:8200
+  role: devsecops-app
+  # CLI/logical KV-v2 path (what `vault kv get` takes) -- NOT the same
+  # string as the policy path in terraform/environments/local/vault.tf,
+  # which needs an explicit "data/" segment the CLI inserts for you.
+  secretPath: devsecops/devsecops-app/example

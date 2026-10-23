@@ -43,4 +43,16 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
+    {{- if .Values.vault.enabled }}
+    # The initContainer (not the main container) calls out to Vault for
+    # the Kubernetes-auth login and secret fetch (Phase 8). Same pod,
+    # same NetworkPolicy -- egress rules apply per-pod, not per-container.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: vault
+      ports:
+        - protocol: TCP
+          port: 8200
+    {{- end }}
 {{- end }}

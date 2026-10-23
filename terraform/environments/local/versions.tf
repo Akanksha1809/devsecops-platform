@@ -9,6 +9,10 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.6"
     }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 4.5"
+    }
   }
 
   # Local backend (the default — no backend block needed to get it, this
