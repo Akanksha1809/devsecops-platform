@@ -7,7 +7,7 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from app.config import settings
 from app.logging_config import configure_logging
 from app.metrics import MetricsMiddleware
-from app.routers import tasks
+from app.routers import tasks, webhooks
 
 configure_logging(settings.log_level)
 logger = logging.getLogger("app")
@@ -23,6 +23,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=settings.name, version=settings.version, lifespan=lifespan)
 app.add_middleware(MetricsMiddleware)
 app.include_router(tasks.router)
+app.include_router(webhooks.router)
 
 
 @app.get("/")

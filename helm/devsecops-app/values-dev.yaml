@@ -1,9 +1,9 @@
 namespace: devsecops-dev
-# 4, not 1: with replicas=1 the canary steps' setWeight 25/50/100 can't
-# divide meaningfully into replica counts (Argo Rollouts' basic canary,
-# with no traffic-routing plugin, approximates weight via replica ratio —
-# see values.yaml's canary comment). 4 gives a real 1/2/4 progression.
-replicaCount: 4
+# Scaled back down from 4 (used for Phase 5's canary weight demo, where
+# 4 divides cleanly into 25/50/100%) to 2 now that that's done — frees
+# real RAM for Phase 6's monitoring stack on this 8GB machine, while 2
+# still demonstrates multi-replica load distribution in dashboards.
+replicaCount: 2
 app:
   logLevel: DEBUG
   version: "0.2.0"
