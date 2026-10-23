@@ -1,0 +1,22 @@
+name: devsecops-platform
+
+services:
+  jenkins:
+    build: .
+    image: devsecops-platform-jenkins:local
+    container_name: devsecops-jenkins
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Sibling tool containers (trivy/gitleaks/checkov/python) launched by the
+    # pipeline via docker-outside-of-docker reach this container's workspace
+    # with `docker run --volumes-from devsecops-jenkins`, not a bind mount —
+    # that's what makes paths line up without any host-path translation.
+
+volumes:
+  jenkins_home:

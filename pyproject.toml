@@ -8,6 +8,9 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "integration: exercises multi-request workflows across the API, not just isolated units",
+]
 
 [tool.coverage.run]
 source = ["app"]
