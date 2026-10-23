@@ -1,0 +1,105 @@
+# Vault dev-server mode — NOT a production configuration. Dev mode:
+# auto-unseals, stores everything in memory (lost on pod restart), has
+# no TLS, and prints a freshly-generated root token to its own stdout
+# logs on every startup (VAULT_DEV_ROOT_TOKEN_ID is deliberately left
+# unset here so that token is never a fixed, committable value — see
+# docs/IMPLEMENTATION_PLAN.md §4g). A real deployment would run Vault in
+# HA mode with a real storage backend, proper unseal (Shamir or a cloud
+# KMS), TLS, and would never use dev mode at all.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault
+  namespace: vault
+---
+# Lets Vault's Kubernetes auth method validate service account tokens
+# via its own pod identity (TokenReview), instead of needing a separate
+# static reviewer JWT configured by hand.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: vault
+    namespace: vault
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vault
+    spec:
+      serviceAccountName: vault
+      automountServiceAccountToken: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: vault
+          image: hashicorp/vault:1.18
+          args: ["server", "-dev", "-dev-listen-address=0.0.0.0:8200"]
+          env:
+            - name: VAULT_ADDR
+              value: "http://127.0.0.1:8200"
+            - name: VAULT_LOCAL_CONFIG
+              value: '{"log_level":"info"}'
+          ports:
+            - name: http
+              containerPort: 8200
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /v1/sys/health?standbyok=true
+              port: http
+            initialDelaySeconds: 3
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: audit
+              mountPath: /vault/audit
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: audit
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+spec:
+  selector:
+    app.kubernetes.io/name: vault
+  ports:
+    - name: http
+      port: 8200
+      targetPort: http

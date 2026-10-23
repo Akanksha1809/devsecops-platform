@@ -39,6 +39,18 @@ module "monitoring" {
   automated_sync        = true
 }
 
+module "vault" {
+  source = "../../modules/argocd-application"
+
+  name                  = "vault"
+  repo_url              = var.repo_url
+  target_revision       = var.target_revision
+  source_path           = "vault"
+  source_type           = "directory"
+  destination_namespace = "vault"
+  automated_sync        = true
+}
+
 # Terraform owns this namespace specifically (not left to the monitoring
 # Application's CreateNamespace=true, which only ensures a namespace
 # exists, not who manages it) because the Grafana secret below must exist

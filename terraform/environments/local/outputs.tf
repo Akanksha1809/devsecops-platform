@@ -4,6 +4,7 @@ output "application_names" {
     module.app_dev.application_name,
     module.app_staging.application_name,
     module.monitoring.application_name,
+    module.vault.application_name,
   ]
 }
 

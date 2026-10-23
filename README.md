@@ -22,8 +22,7 @@ Hand-rolled plain Deployments (`monitoring/`) — not the Prometheus Operator/ku
 A real alert was fired end-to-end, not just configured: `AppUnavailable` went `pending` → `firing` when dev was genuinely scaled to 0 via Git, Alertmanager got `connection refused` delivering to the now-0-replica app, retried automatically, and succeeded once the app came back — captured with the real payload in [docs/evidence/phase6-alert-firing-transcript.md](docs/evidence/phase6-alert-firing-transcript.md). That run also caught a real bug in the original alert expression (`sum(up{...}) == 0` never matches once a target vanishes entirely from service discovery — fixed to `absent(up{...} == 1)`) and a real limitation (the webhook receiver's in-memory store is per-pod, so only one of two replicas saw the delivery).
 
 ```bash
-kubectl apply -f argocd/application-monitoring.yaml
-kubectl -n monitoring create secret generic grafana-admin-credentials --from-literal=admin-password=CHANGE_ME
+# Bootstrapped by Terraform now (see below), not kubectl apply directly.
 kubectl -n monitoring port-forward svc/grafana 3000:3000   # dashboard: DevSecOps Platform — App & Cluster
 ```
 
@@ -38,13 +37,13 @@ Two real bugs surfaced and fixed along the way, both documented in [docs/IMPLEME
 
 ### GitOps (Argo CD)
 
-Argo CD (`argocd/`) manages `devsecops-dev` with full automation (auto-sync + selfHeal + prune) and `devsecops-staging` with no automated sync at all — promoting to staging means an explicit `argocd app sync devsecops-app-staging`, which is this project's dev→staging promotion gate. Jenkins never touches the cluster; Argo CD is the only thing that applies Kubernetes changes, reconciling from the `helm/devsecops-app` path in this same repo.
+Argo CD manages `devsecops-dev` with full automation (auto-sync + selfHeal + prune) and `devsecops-staging` with no automated sync at all — promoting to staging means an explicit `argocd app sync devsecops-app-staging`, which is this project's dev→staging promotion gate. Jenkins never touches the cluster; Argo CD is the only thing that applies Kubernetes changes, reconciling from the `helm/devsecops-app` path in this same repo. The `Application` objects themselves are Terraform-managed as of Phase 7 (`terraform/`) — there's no longer a static `argocd/*.yaml` to `kubectl apply`; that was a real stale duplicate removed once Terraform became the actual source of truth (see `docs/IMPLEMENTATION_PLAN.md` §4g).
 
 Actually demonstrated, not just configured: a manual `kubectl scale --replicas=5` on dev's Rollout was detected as drift and self-healed back to the Git-declared replica count within 5 seconds — transcript in [docs/evidence/phase4-drift-selfheal-transcript.md](docs/evidence/phase4-drift-selfheal-transcript.md) (captured when the workload was still a plain Deployment; Phase 5 switched it to a Rollout, selfHeal behaves the same way). The CI→GitOps handoff (Jenkins auto-bumping the image tag in Git after a publish) isn't wired yet — it depends on the still-deferred GHCR publish from Phase 2.
 
 ```bash
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
-kubectl apply -f argocd/application-dev.yaml -f argocd/application-staging.yaml
+cd terraform/environments/local && terraform init && terraform apply
 argocd app sync devsecops-app-staging   # explicit promotion, dev auto-syncs on its own
 ```
 
