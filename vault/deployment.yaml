@@ -55,10 +55,14 @@ spec:
           image: hashicorp/vault:1.18
           args: ["server", "-dev", "-dev-listen-address=0.0.0.0:8200"]
           env:
+            # No VAULT_LOCAL_CONFIG: that env var makes the entrypoint
+            # script write /vault/config/local.json, which isn't a
+            # writable path in this container (found by actually running
+            # it: "Permission denied") and isn't needed anyway -- the
+            # `-dev` server flags below are already everything dev mode
+            # requires.
             - name: VAULT_ADDR
               value: "http://127.0.0.1:8200"
-            - name: VAULT_LOCAL_CONFIG
-              value: '{"log_level":"info"}'
           ports:
             - name: http
               containerPort: 8200
