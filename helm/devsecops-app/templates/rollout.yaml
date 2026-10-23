@@ -9,6 +9,8 @@ metadata:
     {{- include "devsecops-app.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  progressDeadlineSeconds: {{ .Values.canary.progressDeadlineSeconds }}
+  progressDeadlineAbort: {{ .Values.canary.progressDeadlineAbort }}
   strategy:
     canary:
       canaryService: {{ .Values.canary.canaryServiceName }}

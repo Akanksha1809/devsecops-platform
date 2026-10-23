@@ -71,6 +71,13 @@ rollingUpdate:
 # stableService below exist only so the AnalysisTemplate can target the
 # canary pods specifically, independent of that shared Service.
 canary:
+  # 60s, not the 600s default: this project's demo-scale canary steps are
+  # tens of seconds each, so a 600s deadline would never trip in any demo
+  # that doesn't involve literally waiting 10 minutes. progressDeadlineAbort
+  # is what actually makes an exceeded deadline abort the rollout (and roll
+  # traffic back to 100% stable) instead of merely surfacing a condition.
+  progressDeadlineSeconds: 60
+  progressDeadlineAbort: true
   canaryServiceName: devsecops-app-canary
   stableServiceName: devsecops-app-stable
   analysisTemplateName: devsecops-app-canary-health
