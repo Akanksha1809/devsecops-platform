@@ -1,4 +1,4 @@
-.PHONY: venv install test lint fmt run build run-image clean
+.PHONY: venv install test lint fmt run build run-image clean bootstrap validate teardown
 
 VENV := .venv
 PY := $(VENV)/bin/python
@@ -32,3 +32,12 @@ run-image: build
 
 clean:
 	rm -rf $(VENV) .pytest_cache .ruff_cache htmlcov .coverage
+
+bootstrap:
+	./scripts/bootstrap.sh
+
+validate:
+	./scripts/validate.sh
+
+teardown:
+	./scripts/teardown.sh
