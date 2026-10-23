@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: local-webhook
+      group_by: ["alertname"]
+      group_wait: 10s
+      group_interval: 30s
+      repeat_interval: 1h
+
+    receivers:
+      # Free, local notification destination (brief section M allows
+      # "console output... or a webhook receiver") — this project's own
+      # app, not a third-party notification service. See
+      # app/routers/webhooks.py and docs/IMPLEMENTATION_PLAN.md §4e.
+      - name: local-webhook
+        webhook_configs:
+          - url: http://devsecops-app.devsecops-dev.svc:8000/webhooks/alerts
+            send_resolved: true

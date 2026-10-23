@@ -26,6 +26,9 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: argo-rollouts # AnalysisRun health probes
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring # Prometheus scrape + Alertmanager webhook (Phase 6)
       ports:
         - protocol: TCP
           port: 8000

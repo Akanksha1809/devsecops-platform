@@ -39,6 +39,12 @@ spec:
         # name alone doesn't trigger a rollout on its own, since the pod
         # template itself wouldn't otherwise change.
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        # Annotation-based Prometheus discovery (Phase 6) — no
+        # ServiceMonitor CRD / Prometheus Operator installed, see
+        # monitoring/prometheus/configmap.yaml.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
       labels:
         {{- include "devsecops-app.labels" . | nindent 8 }}
     spec:
