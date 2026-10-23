@@ -9,7 +9,10 @@
 // This pipeline never touches the Kubernetes cluster. It ends at "publish
 // the image" — Argo CD (Phase 4) is the only thing that deploys.
 
-def PIP_CACHE_VOLUME = 'devsecops-platform-pip-cache'
+// Plain top-level Groovy vars (def ... outside pipeline{}) do not reliably
+// survive across stages/functions in Jenkins' CPS runtime — this bit us twice
+// already (see commit history). Constants used by dockerRun() are therefore
+// inlined as literals rather than stored in a shared variable.
 
 // $(hostname) is resolved by the shell at execution time, inside this build's
 // own Jenkins container, and always equals that container's own ID — so each
@@ -20,7 +23,7 @@ def dockerRun(String image, String cmd, String extraArgs = '') {
     sh """
         docker run --rm \\
             --volumes-from \$(hostname) \\
-            -v ${PIP_CACHE_VOLUME}:/root/.cache/pip \\
+            -v devsecops-platform-pip-cache:/root/.cache/pip \\
             -w "\${WORKSPACE}" \\
             ${extraArgs} \\
             ${image} \\
@@ -64,7 +67,7 @@ pipeline {
                     // later stages.
                     env.SHORT_SHA = sh(script: 'git rev-parse --short=7 HEAD', returnStdout: true).trim()
                     env.IMAGE_TAG = "${env.BUILD_NUMBER}-${env.SHORT_SHA}"
-                    sh 'docker volume create ' + PIP_CACHE_VOLUME + ' >/dev/null'
+                    sh 'docker volume create devsecops-platform-pip-cache >/dev/null'
                 }
             }
         }
