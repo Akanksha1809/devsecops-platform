@@ -1,8 +1,11 @@
 {{- if .Values.networkPolicy.enabled }}
-# NOTE: kind's default CNI (kindnet) does not enforce NetworkPolicy — see
-# docs/IMPLEMENTATION_PLAN.md §1 and values.yaml's networkPolicy comment.
-# This documents and validates the intended rules; it does not currently
-# block any traffic on this cluster.
+# CORRECTION (Phase 5): this CNI *does* enforce NetworkPolicy on this kind
+# version, contrary to what Phase 3 assumed from general kindnet history —
+# proven when Argo Rollouts' AnalysisRun (running in the argo-rollouts
+# namespace) couldn't reach the canary Service at all, while a same-
+# namespace curl worked fine. See docs/IMPLEMENTATION_PLAN.md §4d for the
+# empirical before/after. The ingress rule below now explicitly allows the
+# cross-namespace callers this project actually has.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -19,7 +22,10 @@ spec:
     - Egress
   ingress:
     - from:
-        - podSelector: {}
+        - podSelector: {} # other pods in this namespace
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: argo-rollouts # AnalysisRun health probes
       ports:
         - protocol: TCP
           port: 8000

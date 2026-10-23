@@ -101,10 +101,8 @@ serviceAccount:
   automountServiceAccountToken: false
 
 networkPolicy:
-  # kind's default CNI (kindnet) does not enforce NetworkPolicy — this
-  # manifest documents intended least-privilege traffic rules and validates
-  # against the schema, but enforcement would require swapping in Calico/
-  # Cilium, which this project skips to stay inside the RAM budget (see
-  # docs/IMPLEMENTATION_PLAN.md §1). Kept enabled by default anyway: it's
-  # free to apply and becomes real the moment a policy-enforcing CNI is used.
+  # CORRECTED in Phase 5: this CNI *does* enforce NetworkPolicy (Phase 3
+  # assumed otherwise, based on general kindnet history, not this specific
+  # version) — confirmed when it silently blocked Argo Rollouts' canary
+  # health probes cross-namespace. See docs/IMPLEMENTATION_PLAN.md §4d.
   enabled: true
