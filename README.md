@@ -2,9 +2,18 @@
 
 A production-style, fully free/open-source CI/CD platform built as a portfolio project: Jenkins → security gates → Argo CD → Argo Rollouts → Prometheus/Grafana, running locally on `kind`. No paid services, no always-on cloud resources.
 
-**Status: Phase 6 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
+**Status: Phase 7 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
 
-## What exists right now (Phases 1–6 — verified)
+## What exists right now (Phases 1–7 — verified)
+
+### Security posture & Terraform bootstrap
+
+[docs/SECURITY.md](docs/SECURITY.md) consolidates every security finding across all phases — fixed, or accepted with a documented reason, never silently ignored. Terraform (`terraform/`) bootstraps the Argo CD `Application` objects and the Grafana admin Secret — not the cluster itself or the ongoing app resources, which stay Argo CD's job entirely (the boundary is documented in the module itself). Applied for real against the running cluster, including migrating 3 manually-created Applications into Terraform's management and fixing a real multi-tool-ownership conflict with Argo CD (`terraform plan` is clean afterward — verified, not assumed).
+
+```bash
+cd terraform/environments/local
+terraform init && terraform plan && terraform apply
+```
 
 ### Monitoring (Prometheus, Alertmanager, Grafana)
 
@@ -93,4 +102,4 @@ make run-image   # http://localhost:8000
 
 ## Not built yet
 
-Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+Vault and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
