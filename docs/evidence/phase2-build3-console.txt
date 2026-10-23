@@ -1,0 +1,599 @@
+Started by user admin
+Obtained Jenkinsfile from git https://github.com/Akanksha1809/devsecops-platform.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/jenkins_home/workspace/devsecops-platform-pipeline
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/Akanksha1809/devsecops-platform.git
+ > git init /var/jenkins_home/workspace/devsecops-platform-pipeline # timeout=10
+Fetching upstream changes from https://github.com/Akanksha1809/devsecops-platform.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/Akanksha1809/devsecops-platform.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/Akanksha1809/devsecops-platform.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 5bc0c3eb64bf9a9989cef7b686eb2225377af5de (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 5bc0c3eb64bf9a9989cef7b686eb2225377af5de # timeout=10
+Commit message: "Fix Jenkinsfile: PIP_CACHE_VOLUME hit the same CPS scoping bug"
+ > git rev-list --no-walk a39fa9813642ef2c2fe168020ff250964e7d8b34 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timeout
+Timeout set to expire in 30 min
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+[2026-10-23T12:59:41.573Z] Selected Git installation does not exist. Using Default
+[2026-10-23T12:59:41.574Z] The recommended git tool is: NONE
+[2026-10-23T12:59:41.574Z] No credentials specified
+[2026-10-23T12:59:41.574Z]  > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/devsecops-platform-pipeline/.git # timeout=10
+[2026-10-23T12:59:41.578Z] Fetching changes from the remote Git repository
+[2026-10-23T12:59:41.579Z]  > git config remote.origin.url https://github.com/Akanksha1809/devsecops-platform.git # timeout=10
+[2026-10-23T12:59:41.585Z] Fetching upstream changes from https://github.com/Akanksha1809/devsecops-platform.git
+[2026-10-23T12:59:41.586Z]  > git --version # timeout=10
+[2026-10-23T12:59:41.589Z]  > git --version # 'git version 2.47.3'
+[2026-10-23T12:59:41.589Z]  > git fetch --tags --force --progress -- https://github.com/Akanksha1809/devsecops-platform.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-10-23T12:59:42.296Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-10-23T12:59:42.306Z] Checking out Revision 5bc0c3eb64bf9a9989cef7b686eb2225377af5de (refs/remotes/origin/main)
+[2026-10-23T12:59:42.306Z]  > git config core.sparsecheckout # timeout=10
+[2026-10-23T12:59:42.322Z]  > git checkout -f 5bc0c3eb64bf9a9989cef7b686eb2225377af5de # timeout=10
+[2026-10-23T12:59:42.330Z] Commit message: "Fix Jenkinsfile: PIP_CACHE_VOLUME hit the same CPS scoping bug"
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T12:59:42.643Z] + git rev-parse --short=7 HEAD
+[Pipeline] sh
+[2026-10-23T12:59:42.932Z] + docker volume create devsecops-platform-pip-cache
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Install deps)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T12:59:43.374Z] + hostname
+[2026-10-23T12:59:43.375Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T12:59:53.285Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T12:59:53.287Z] 
+[2026-10-23T12:59:53.287Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T12:59:53.287Z] [notice] To update, run: pip install --upgrade pip
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Lint & format)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T12:59:53.726Z] + hostname
+[2026-10-23T12:59:53.726Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T12:59:53.726Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T12:59:53.726Z]                         ruff check app tests
+[2026-10-23T12:59:53.727Z]                         ruff format --check app tests
+[2026-10-23T12:59:53.727Z]                     
+[2026-10-23T12:59:58.938Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T12:59:58.939Z] 
+[2026-10-23T12:59:58.939Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T12:59:58.939Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T12:59:58.939Z] All checks passed!
+[2026-10-23T12:59:58.939Z] 11 files already formatted
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit tests)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T12:59:59.614Z] + hostname
+[2026-10-23T12:59:59.614Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T12:59:59.614Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T12:59:59.614Z]                         pytest tests -m "not integration" --junitxml=unit-results.xml
+[2026-10-23T12:59:59.614Z]                     
+[2026-10-23T13:00:04.822Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T13:00:04.823Z] 
+[2026-10-23T13:00:04.823Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T13:00:04.823Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T13:00:05.080Z] ============================= test session starts ==============================
+[2026-10-23T13:00:05.080Z] platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+[2026-10-23T13:00:05.080Z] rootdir: /var/jenkins_home/workspace/devsecops-platform-pipeline
+[2026-10-23T13:00:05.080Z] configfile: pyproject.toml
+[2026-10-23T13:00:05.080Z] plugins: cov-7.1.0, anyio-4.15.1
+[2026-10-23T13:00:05.080Z] collected 18 items / 3 deselected / 15 selected
+[2026-10-23T13:00:05.080Z] 
+[2026-10-23T13:00:05.080Z] tests/test_health.py .....                                               [ 33%]
+[2026-10-23T13:00:05.080Z] tests/test_tasks.py ..........                                           [100%]
+[2026-10-23T13:00:05.080Z] 
+[2026-10-23T13:00:05.080Z] =============================== warnings summary ===============================
+[2026-10-23T13:00:05.080Z] ../../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+[2026-10-23T13:00:05.080Z]   /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+[2026-10-23T13:00:05.080Z]     from starlette.testclient import TestClient as TestClient  # noqa
+[2026-10-23T13:00:05.080Z] 
+[2026-10-23T13:00:05.080Z] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[2026-10-23T13:00:05.080Z] - generated xml file: /var/jenkins_home/workspace/devsecops-platform-pipeline/unit-results.xml -
+[2026-10-23T13:00:05.080Z] ================= 15 passed, 3 deselected, 1 warning in 0.10s ==================
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] junit
+[2026-10-23T13:00:05.783Z] Recording test results
+[2026-10-23T13:00:06.005Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Integration tests)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:00:06.446Z] + hostname
+[2026-10-23T13:00:06.447Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T13:00:06.447Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T13:00:06.447Z]                         pytest tests -m integration --junitxml=integration-results.xml
+[2026-10-23T13:00:06.447Z]                     
+[2026-10-23T13:00:11.657Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T13:00:11.662Z] 
+[2026-10-23T13:00:11.663Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T13:00:11.663Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T13:00:11.663Z] ============================= test session starts ==============================
+[2026-10-23T13:00:11.663Z] platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+[2026-10-23T13:00:11.663Z] rootdir: /var/jenkins_home/workspace/devsecops-platform-pipeline
+[2026-10-23T13:00:11.663Z] configfile: pyproject.toml
+[2026-10-23T13:00:11.663Z] plugins: cov-7.1.0, anyio-4.15.1
+[2026-10-23T13:00:11.663Z] collected 18 items / 15 deselected / 3 selected
+[2026-10-23T13:00:11.663Z] 
+[2026-10-23T13:00:11.916Z] tests/test_integration.py ...                                            [100%]
+[2026-10-23T13:00:11.916Z] 
+[2026-10-23T13:00:11.916Z] =============================== warnings summary ===============================
+[2026-10-23T13:00:11.916Z] ../../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+[2026-10-23T13:00:11.917Z]   /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+[2026-10-23T13:00:11.917Z]     from starlette.testclient import TestClient as TestClient  # noqa
+[2026-10-23T13:00:11.917Z] 
+[2026-10-23T13:00:11.917Z] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[2026-10-23T13:00:11.917Z] - generated xml file: /var/jenkins_home/workspace/devsecops-platform-pipeline/integration-results.xml -
+[2026-10-23T13:00:11.917Z] ================= 3 passed, 15 deselected, 1 warning in 0.08s ==================
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] junit
+[2026-10-23T13:00:12.250Z] Recording test results
+[2026-10-23T13:00:12.286Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Coverage)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:00:12.648Z] + hostname
+[2026-10-23T13:00:12.649Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T13:00:12.649Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T13:00:12.649Z]                         pytest tests --cov=app --cov-report=xml --cov-report=html --cov-report=term
+[2026-10-23T13:00:12.649Z]                     
+[2026-10-23T13:00:17.857Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T13:00:17.857Z] 
+[2026-10-23T13:00:17.857Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T13:00:17.857Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T13:00:18.773Z] ============================= test session starts ==============================
+[2026-10-23T13:00:18.773Z] platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+[2026-10-23T13:00:18.773Z] rootdir: /var/jenkins_home/workspace/devsecops-platform-pipeline
+[2026-10-23T13:00:18.773Z] configfile: pyproject.toml
+[2026-10-23T13:00:18.773Z] plugins: cov-7.1.0, anyio-4.15.1
+[2026-10-23T13:00:18.773Z] collected 18 items
+[2026-10-23T13:00:18.773Z] 
+[2026-10-23T13:00:18.773Z] tests/test_health.py .....                                               [ 27%]
+[2026-10-23T13:00:19.025Z] tests/test_integration.py ...                                            [ 44%]
+[2026-10-23T13:00:19.025Z] tests/test_tasks.py ..........                                           [100%]
+[2026-10-23T13:00:19.025Z] 
+[2026-10-23T13:00:19.025Z] =============================== warnings summary ===============================
+[2026-10-23T13:00:19.025Z] ../../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+[2026-10-23T13:00:19.025Z]   /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+[2026-10-23T13:00:19.025Z]     from starlette.testclient import TestClient as TestClient  # noqa
+[2026-10-23T13:00:19.025Z] 
+[2026-10-23T13:00:19.025Z] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[2026-10-23T13:00:19.025Z] ================================ tests coverage ================================
+[2026-10-23T13:00:19.025Z] _______________ coverage: platform linux, python 3.12.15-final-0 _______________
+[2026-10-23T13:00:19.025Z] 
+[2026-10-23T13:00:19.025Z] Name                      Stmts   Miss  Cover
+[2026-10-23T13:00:19.025Z] ---------------------------------------------
+[2026-10-23T13:00:19.025Z] app/__init__.py               0      0   100%
+[2026-10-23T13:00:19.025Z] app/config.py                 9      0   100%
+[2026-10-23T13:00:19.025Z] app/logging_config.py        19      2    89%
+[2026-10-23T13:00:19.025Z] app/main.py                  33      0   100%
+[2026-10-23T13:00:19.025Z] app/metrics.py               17      0   100%
+[2026-10-23T13:00:19.025Z] app/routers/__init__.py       0      0   100%
+[2026-10-23T13:00:19.025Z] app/routers/tasks.py         58      1    98%
+[2026-10-23T13:00:19.025Z] ---------------------------------------------
+[2026-10-23T13:00:19.025Z] TOTAL                       136      3    98%
+[2026-10-23T13:00:19.025Z] Coverage HTML written to dir htmlcov
+[2026-10-23T13:00:19.025Z] Coverage XML written to file coverage.xml
+[2026-10-23T13:00:19.025Z] ======================== 18 passed, 1 warning in 0.22s =========================
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] archiveArtifacts
+[2026-10-23T13:00:19.731Z] Archiving artifacts
+[Pipeline] publishHTML
+[2026-10-23T13:00:19.789Z] [htmlpublisher] Archiving HTML reports...
+[2026-10-23T13:00:19.795Z] [htmlpublisher] Archiving at BUILD level /var/jenkins_home/workspace/devsecops-platform-pipeline/htmlcov to Coverage_20Report
+[2026-10-23T13:00:19.799Z] [htmlpublisher] Copying recursive using current thread
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Quality gate: coverage threshold)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:00:20.186Z] + hostname
+[2026-10-23T13:00:20.186Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T13:00:20.186Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T13:00:20.186Z]                         pytest tests --cov=app --cov-fail-under=80 -q
+[2026-10-23T13:00:20.186Z]                     
+[2026-10-23T13:00:25.390Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T13:00:25.391Z] 
+[2026-10-23T13:00:25.391Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T13:00:25.391Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T13:00:26.569Z] ..................                                                       [100%]
+[2026-10-23T13:00:26.569Z] =============================== warnings summary ===============================
+[2026-10-23T13:00:26.569Z] ../../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+[2026-10-23T13:00:26.569Z]   /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+[2026-10-23T13:00:26.569Z]     from starlette.testclient import TestClient as TestClient  # noqa
+[2026-10-23T13:00:26.569Z] 
+[2026-10-23T13:00:26.569Z] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[2026-10-23T13:00:26.569Z] ================================ tests coverage ================================
+[2026-10-23T13:00:26.569Z] _______________ coverage: platform linux, python 3.12.15-final-0 _______________
+[2026-10-23T13:00:26.569Z] 
+[2026-10-23T13:00:26.569Z] Name                      Stmts   Miss  Cover
+[2026-10-23T13:00:26.569Z] ---------------------------------------------
+[2026-10-23T13:00:26.569Z] app/__init__.py               0      0   100%
+[2026-10-23T13:00:26.569Z] app/config.py                 9      0   100%
+[2026-10-23T13:00:26.569Z] app/logging_config.py        19      2    89%
+[2026-10-23T13:00:26.569Z] app/main.py                  33      0   100%
+[2026-10-23T13:00:26.569Z] app/metrics.py               17      0   100%
+[2026-10-23T13:00:26.569Z] app/routers/__init__.py       0      0   100%
+[2026-10-23T13:00:26.569Z] app/routers/tasks.py         58      1    98%
+[2026-10-23T13:00:26.569Z] ---------------------------------------------
+[2026-10-23T13:00:26.569Z] TOTAL                       136      3    98%
+[2026-10-23T13:00:26.569Z] Required test coverage of 80% reached. Total coverage: 97.79%
+[2026-10-23T13:00:26.569Z] 18 passed, 1 warning in 0.22s
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Secret scan (gitleaks))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:00:27.357Z] + hostname
+[2026-10-23T13:00:27.358Z] + docker run --rm --volumes-from 00e9419be5b1 -w /var/jenkins_home/workspace/devsecops-platform-pipeline zricethezav/gitleaks:latest detect --source=. -v --report-path=gitleaks-report.json --exit-code 1
+[2026-10-23T13:00:27.609Z] 
+[2026-10-23T13:00:27.609Z]     ○
+[2026-10-23T13:00:27.609Z]     │╲
+[2026-10-23T13:00:27.609Z]     │ ○
+[2026-10-23T13:00:27.609Z]     ○ ░
+[2026-10-23T13:00:27.609Z]     ░    gitleaks
+[2026-10-23T13:00:27.609Z] 
+[2026-10-23T13:00:27.864Z] [90m1:00PM[0m [32mINF[0m [1m4 commits scanned.[0m
+[2026-10-23T13:00:27.865Z] [90m1:00PM[0m [32mINF[0m [1mscanned ~109261 bytes (109.26 KB) in 76.3ms[0m
+[2026-10-23T13:00:27.865Z] [90m1:00PM[0m [32mINF[0m [1mno leaks found[0m
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] archiveArtifacts
+[2026-10-23T13:00:27.949Z] Archiving artifacts
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Dependency vulnerability scan (trivy))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:00:28.348Z] + hostname
+[2026-10-23T13:00:28.348Z] + docker run --rm --volumes-from 00e9419be5b1 -w /var/jenkins_home/workspace/devsecops-platform-pipeline -v devsecops-platform-trivy-cache:/root/.cache/trivy aquasec/trivy:latest fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format table requirements.txt
+[2026-10-23T13:00:28.901Z] 2026-10-23T13:00:28Z	INFO	[vulndb] Need to update DB
+[2026-10-23T13:00:28.901Z] 2026-10-23T13:00:28Z	INFO	[vulndb] Downloading vulnerability DB...
+[2026-10-23T13:00:28.901Z] 2026-10-23T13:00:28Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+[2026-10-23T13:00:47.925Z] 239.25 KiB / 129.42 MiB [>___________________________________________________________] 0.18% ? p/s ?1.61 MiB / 129.42 MiB [>_____________________________________________________________] 1.24% ? p/s ?4.89 MiB / 129.42 MiB [-->___________________________________________________________] 3.78% ? p/s ?7.66 MiB / 129.42 MiB [-->______________________________________________] 5.92% 12.39 MiB p/s ETA 9s10.03 MiB / 129.42 MiB [--->____________________________________________] 7.75% 12.39 MiB p/s ETA 9s12.62 MiB / 129.42 MiB [---->___________________________________________] 9.75% 12.39 MiB p/s ETA 9s15.03 MiB / 129.42 MiB [----->_________________________________________] 11.61% 12.38 MiB p/s ETA 9s17.50 MiB / 129.42 MiB [------>________________________________________] 13.52% 12.38 MiB p/s ETA 9s19.66 MiB / 129.42 MiB [------->_______________________________________] 15.19% 12.38 MiB p/s ETA 8s21.69 MiB / 129.42 MiB [------->_______________________________________] 16.76% 12.30 MiB p/s ETA 8s24.94 MiB / 129.42 MiB [--------->_____________________________________] 19.27% 12.30 MiB p/s ETA 8s27.37 MiB / 129.42 MiB [--------->_____________________________________] 21.15% 12.30 MiB p/s ETA 8s29.72 MiB / 129.42 MiB [---------->____________________________________] 22.96% 12.37 MiB p/s ETA 8s32.41 MiB / 129.42 MiB [----------->___________________________________] 25.04% 12.37 MiB p/s ETA 7s34.81 MiB / 129.42 MiB [------------>__________________________________] 26.90% 12.37 MiB p/s ETA 7s37.09 MiB / 129.42 MiB [------------->_________________________________] 28.66% 12.36 MiB p/s ETA 7s39.81 MiB / 129.42 MiB [-------------->________________________________] 30.76% 12.36 MiB p/s ETA 7s41.94 MiB / 129.42 MiB [--------------->_______________________________] 32.40% 12.36 MiB p/s ETA 7s44.56 MiB / 129.42 MiB [---------------->______________________________] 34.43% 12.37 MiB p/s ETA 6s47.16 MiB / 129.42 MiB [----------------->_____________________________] 36.44% 12.37 MiB p/s ETA 6s49.59 MiB / 129.42 MiB [------------------>____________________________] 38.32% 12.37 MiB p/s ETA 6s52.19 MiB / 129.42 MiB [------------------>____________________________] 40.32% 12.39 MiB p/s ETA 6s54.66 MiB / 129.42 MiB [------------------->___________________________] 42.23% 12.39 MiB p/s ETA 6s57.12 MiB / 129.42 MiB [-------------------->__________________________] 44.14% 12.39 MiB p/s ETA 5s59.53 MiB / 129.42 MiB [--------------------->_________________________] 46.00% 12.38 MiB p/s ETA 5s60.69 MiB / 129.42 MiB [---------------------->________________________] 46.89% 12.38 MiB p/s ETA 5s63.16 MiB / 129.42 MiB [---------------------->________________________] 48.80% 12.38 MiB p/s ETA 5s66.12 MiB / 129.42 MiB [------------------------>______________________] 51.09% 12.29 MiB p/s ETA 5s68.81 MiB / 129.42 MiB [------------------------>______________________] 53.17% 12.29 MiB p/s ETA 4s71.22 MiB / 129.42 MiB [------------------------->_____________________] 55.03% 12.29 MiB p/s ETA 4s73.62 MiB / 129.42 MiB [-------------------------->____________________] 56.89% 12.30 MiB p/s ETA 4s76.28 MiB / 129.42 MiB [--------------------------->___________________] 58.94% 12.30 MiB p/s ETA 4s78.72 MiB / 129.42 MiB [---------------------------->__________________] 60.83% 12.30 MiB p/s ETA 4s81.03 MiB / 129.42 MiB [----------------------------->_________________] 62.61% 12.31 MiB p/s ETA 3s83.62 MiB / 129.42 MiB [------------------------------>________________] 64.62% 12.31 MiB p/s ETA 3s86.09 MiB / 129.42 MiB [------------------------------->_______________] 66.52% 12.31 MiB p/s ETA 3s88.50 MiB / 129.42 MiB [-------------------------------->______________] 68.38% 12.31 MiB p/s ETA 3s91.09 MiB / 129.42 MiB [--------------------------------->_____________] 70.39% 12.31 MiB p/s ETA 3s93.56 MiB / 129.42 MiB [--------------------------------->_____________] 72.29% 12.31 MiB p/s ETA 2s96.00 MiB / 129.42 MiB [---------------------------------->____________] 74.18% 12.33 MiB p/s ETA 2s98.47 MiB / 129.42 MiB [----------------------------------->___________] 76.09% 12.33 MiB p/s ETA 2s100.87 MiB / 129.42 MiB [----------------------------------->__________] 77.95% 12.33 MiB p/s ETA 2s103.31 MiB / 129.42 MiB [------------------------------------>_________] 79.83% 12.32 MiB p/s ETA 2s105.97 MiB / 129.42 MiB [------------------------------------->________] 81.88% 12.32 MiB p/s ETA 1s108.34 MiB / 129.42 MiB [-------------------------------------->_______] 83.72% 12.32 MiB p/s ETA 1s110.91 MiB / 129.42 MiB [--------------------------------------->______] 85.70% 12.34 MiB p/s ETA 1s113.34 MiB / 129.42 MiB [---------------------------------------->_____] 87.58% 12.34 MiB p/s ETA 1s115.87 MiB / 129.42 MiB [----------------------------------------->____] 89.54% 12.34 MiB p/s ETA 1s118.34 MiB / 129.42 MiB [------------------------------------------>___] 91.44% 12.34 MiB p/s ETA 0s120.62 MiB / 129.42 MiB [------------------------------------------>___] 93.21% 12.34 MiB p/s ETA 0s122.87 MiB / 129.42 MiB [------------------------------------------->__] 94.94% 12.34 MiB p/s ETA 0s125.69 MiB / 129.42 MiB [-------------------------------------------->_] 97.12% 12.34 MiB p/s ETA 0s128.16 MiB / 129.42 MiB [--------------------------------------------->] 99.03% 12.34 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 12.34 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 11.94 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 11.94 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 11.94 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 11.17 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 11.17 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 11.17 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 10.45 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 10.45 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------->] 100.00% 10.45 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 9.78 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 9.78 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 9.78 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 9.15 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 9.15 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 9.15 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 8.56 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 8.56 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 8.56 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 8.00 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 8.00 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 8.00 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 7.49 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 7.49 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 7.49 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 7.00 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 7.00 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 7.00 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 6.55 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 6.55 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 6.55 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 6.13 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 6.13 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [--------------------------------------------->] 100.00% 6.13 MiB p/s ETA 0s129.42 MiB / 129.42 MiB [-------------------------------------------------] 100.00% 7.50 MiB p/s 17s2026-10-23T13:00:47Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+[2026-10-23T13:00:47.926Z] 2026-10-23T13:00:47Z	INFO	[vuln] Vulnerability scanning is enabled
+[2026-10-23T13:00:47.926Z] 2026-10-23T13:00:47Z	WARN	[pip] Unable to find python `site-packages` directory. License detection is skipped.	err="unable to find path to Python executable"
+[2026-10-23T13:00:47.926Z] 2026-10-23T13:00:47Z	INFO	Number of language-specific files	num=1
+[2026-10-23T13:00:47.926Z] 2026-10-23T13:00:47Z	INFO	[pip] Detecting vulnerabilities...
+[2026-10-23T13:00:47.926Z] 
+[2026-10-23T13:00:47.926Z] Report Summary
+[2026-10-23T13:00:47.926Z] 
+[2026-10-23T13:00:47.927Z] ┌──────────────────┬──────┬─────────────────┐
+[2026-10-23T13:00:47.927Z] │      Target      │ Type │ Vulnerabilities │
+[2026-10-23T13:00:47.927Z] ├──────────────────┼──────┼─────────────────┤
+[2026-10-23T13:00:47.927Z] │ requirements.txt │ pip  │        0        │
+[2026-10-23T13:00:47.927Z] └──────────────────┴──────┴─────────────────┘
+[2026-10-23T13:00:47.927Z] Legend:
+[2026-10-23T13:00:47.927Z] - '-': Not scanned
+[2026-10-23T13:00:47.927Z] - '0': Clean (no security findings detected)
+[2026-10-23T13:00:47.927Z] 
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (IaC security scan (checkov))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:00:49.002Z] + hostname
+[2026-10-23T13:00:49.003Z] + docker run --rm --volumes-from 00e9419be5b1 -w /var/jenkins_home/workspace/devsecops-platform-pipeline bridgecrew/checkov:latest --directory . --skip-path .venv --compact --quiet --soft-fail
+[2026-10-23T13:00:58.916Z] dockerfile scan results:
+[2026-10-23T13:00:58.917Z] 
+[2026-10-23T13:00:58.917Z] Passed checks: 115, Failed checks: 1, Skipped checks: 0
+[2026-10-23T13:00:58.917Z] 
+[2026-10-23T13:00:58.917Z] Check: CKV_DOCKER_8: "Ensure the last USER is not root"
+[2026-10-23T13:00:58.917Z] 	FAILED for resource: /docker/jenkins/Dockerfile.USER
+[2026-10-23T13:00:58.917Z] 	File: /docker/jenkins/Dockerfile:3-3
+[2026-10-23T13:00:58.917Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/docker-policies/docker-policy-index/ensure-the-last-user-is-not-root
+[2026-10-23T13:00:58.920Z] 
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build image)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:00:59.587Z] + docker build -t devsecops-platform-app:3-5bc0c3e -t devsecops-platform-app:latest-local .
+[2026-10-23T13:00:59.587Z] DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+[2026-10-23T13:00:59.587Z]             Install the buildx component to build images with BuildKit:
+[2026-10-23T13:00:59.587Z]             https://docs.docker.com/go/buildx/
+[2026-10-23T13:00:59.587Z] 
+[2026-10-23T13:00:59.587Z] Sending build context to Docker daemon  77.31kB[2026-10-23T13:00:59.587Z] 
+[2026-10-23T13:00:59.587Z] Step 1/16 : FROM python:3.12-slim AS builder
+[2026-10-23T13:00:59.587Z]  ---> 05cda9777409
+[2026-10-23T13:00:59.588Z] Step 2/16 : WORKDIR /build
+[2026-10-23T13:00:59.588Z]  ---> Using cache
+[2026-10-23T13:00:59.588Z]  ---> 564030a8b986
+[2026-10-23T13:00:59.588Z] Step 3/16 : RUN python -m venv /opt/venv
+[2026-10-23T13:00:59.588Z]  ---> Using cache
+[2026-10-23T13:00:59.588Z]  ---> 863a3356916a
+[2026-10-23T13:00:59.588Z] Step 4/16 : ENV PATH="/opt/venv/bin:$PATH"
+[2026-10-23T13:00:59.588Z]  ---> Using cache
+[2026-10-23T13:00:59.588Z]  ---> fd428b017cf3
+[2026-10-23T13:00:59.588Z] Step 5/16 : COPY requirements.txt .
+[2026-10-23T13:00:59.588Z]  ---> Using cache
+[2026-10-23T13:00:59.588Z]  ---> f6cacd8247e2
+[2026-10-23T13:00:59.588Z] Step 6/16 : RUN pip install --no-cache-dir --upgrade pip &&     pip install --no-cache-dir -r requirements.txt
+[2026-10-23T13:00:59.588Z]  ---> Using cache
+[2026-10-23T13:00:59.588Z]  ---> 5f776308ac56
+[2026-10-23T13:00:59.588Z] Step 7/16 : FROM python:3.12-slim AS runtime
+[2026-10-23T13:00:59.588Z]  ---> 05cda9777409
+[2026-10-23T13:00:59.588Z] Step 8/16 : RUN groupadd --system app && useradd --system --gid app --no-create-home --shell /usr/sbin/nologin app
+[2026-10-23T13:00:59.840Z]  ---> Running in e185f61bfee5
+[2026-10-23T13:01:01.191Z]  ---> Removed intermediate container e185f61bfee5
+[2026-10-23T13:01:01.192Z]  ---> fcb72962fdaf
+[2026-10-23T13:01:01.192Z] Step 9/16 : COPY --from=builder /opt/venv /opt/venv
+[2026-10-23T13:01:05.332Z]  ---> a66c72144b06
+[2026-10-23T13:01:05.333Z] Step 10/16 : ENV PATH="/opt/venv/bin:$PATH"     PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1
+[2026-10-23T13:01:05.333Z]  ---> Running in dfa345eef080
+[2026-10-23T13:01:05.333Z]  ---> Removed intermediate container dfa345eef080
+[2026-10-23T13:01:05.333Z]  ---> 749f264f0f06
+[2026-10-23T13:01:05.333Z] Step 11/16 : WORKDIR /app
+[2026-10-23T13:01:05.333Z]  ---> Running in 885dafda4b4f
+[2026-10-23T13:01:05.892Z]  ---> Removed intermediate container 885dafda4b4f
+[2026-10-23T13:01:05.892Z]  ---> 944d3112ca32
+[2026-10-23T13:01:05.892Z] Step 12/16 : COPY app ./app
+[2026-10-23T13:01:06.448Z]  ---> 8127a7746cdd
+[2026-10-23T13:01:06.449Z] Step 13/16 : USER app
+[2026-10-23T13:01:06.449Z]  ---> Running in b1437fcc73a3
+[2026-10-23T13:01:06.700Z]  ---> Removed intermediate container b1437fcc73a3
+[2026-10-23T13:01:06.700Z]  ---> 9ff42437172d
+[2026-10-23T13:01:06.701Z] Step 14/16 : EXPOSE 8000
+[2026-10-23T13:01:06.951Z]  ---> Running in e85f9e9e373b
+[2026-10-23T13:01:07.202Z]  ---> Removed intermediate container e85f9e9e373b
+[2026-10-23T13:01:07.202Z]  ---> d3859851c4a4
+[2026-10-23T13:01:07.202Z] Step 15/16 : HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)" || exit 1
+[2026-10-23T13:01:07.202Z]  ---> Running in 9c8c0cdc4c73
+[2026-10-23T13:01:07.757Z]  ---> Removed intermediate container 9c8c0cdc4c73
+[2026-10-23T13:01:07.758Z]  ---> 10b0c0cf81fa
+[2026-10-23T13:01:07.758Z] Step 16/16 : ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+[2026-10-23T13:01:07.758Z]  ---> Running in aaa9e3baabb5
+[2026-10-23T13:01:08.009Z]  ---> Removed intermediate container aaa9e3baabb5
+[2026-10-23T13:01:08.009Z]  ---> b327b34a0fcb
+[2026-10-23T13:01:08.009Z] Successfully built b327b34a0fcb
+[2026-10-23T13:01:08.009Z] Successfully tagged devsecops-platform-app:3-5bc0c3e
+[2026-10-23T13:01:08.009Z] Successfully tagged devsecops-platform-app:latest-local
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Image vulnerability scan (trivy))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:01:08.684Z] + docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v devsecops-platform-trivy-cache:/root/.cache/trivy aquasec/trivy:latest image --severity CRITICAL --exit-code 1 --ignore-unfixed devsecops-platform-app:3-5bc0c3e
+[2026-10-23T13:01:08.937Z] 2026-10-23T13:01:08Z	INFO	[vuln] Vulnerability scanning is enabled
+[2026-10-23T13:01:08.937Z] 2026-10-23T13:01:08Z	INFO	[secret] Secret scanning is enabled
+[2026-10-23T13:01:08.937Z] 2026-10-23T13:01:08Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+[2026-10-23T13:01:08.937Z] 2026-10-23T13:01:08Z	INFO	[secret] Please see https://trivy.dev/docs/v0.76/guide/scanner/secret#recommendation for faster secret detection
+[2026-10-23T13:01:10.285Z] 2026-10-23T13:01:10Z	WARN	Third-party SBOM may lead to inaccurate vulnerability detection
+[2026-10-23T13:01:10.285Z] 2026-10-23T13:01:10Z	WARN	Recommend using Trivy to generate SBOMs
+[2026-10-23T13:01:10.285Z] 2026-10-23T13:01:10Z	INFO	[python] Licenses acquired from one or more METADATA files may be subject to additional terms. Use `--debug` flag to see all affected packages.
+[2026-10-23T13:01:10.839Z] 2026-10-23T13:01:10Z	INFO	Detected OS	family="debian" version="13.7"
+[2026-10-23T13:01:10.840Z] 2026-10-23T13:01:10Z	INFO	[debian] Detecting vulnerabilities...	os_version="13" pkg_num=87
+[2026-10-23T13:01:10.840Z] 2026-10-23T13:01:10Z	INFO	Number of language-specific files	num=1
+[2026-10-23T13:01:10.840Z] 2026-10-23T13:01:10Z	INFO	[python-pkg] Detecting vulnerabilities...
+[2026-10-23T13:01:10.840Z] 2026-10-23T13:01:10Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.76/guide/scanner/vulnerability#severity-selection for details.
+[2026-10-23T13:01:10.840Z] 
+[2026-10-23T13:01:10.840Z] Report Summary
+[2026-10-23T13:01:10.840Z] 
+[2026-10-23T13:01:10.840Z] ┌──────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────────────┬─────────┐
+[2026-10-23T13:01:10.841Z] │                                      Target                                      │    Type    │ Vulnerabilities │ Secrets │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ devsecops-platform-app:3-5bc0c3e (debian 13.7)                                   │   debian   │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ Python                                                                           │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/annotated_doc-0.0.5.dist-info/METADATA     │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/annotated_types-0.8.0.dist-info/METADATA   │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/anyio-4.15.1.dist-info/METADATA            │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/click-8.5.0.dist-info/METADATA             │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/fastapi-0.161.1.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/h11-0.16.0.dist-info/METADATA              │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/httptools-0.9.0.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/idna-3.20.dist-info/METADATA               │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/opentelemetry_api-1.45.1.dist-info/METADA- │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] │ TA                                                                               │            │                 │         │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/pip-26.2.2.dist-info/METADATA              │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/prometheus_client-0.26.0.dist-info/METADA- │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] │ TA                                                                               │            │                 │         │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/pydantic-2.14.1.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/pydantic_core-2.50.1.dist-info/METADATA    │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/pydantic_settings-2.16.1.dist-info/METADA- │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] │ TA                                                                               │            │                 │         │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.841Z] │ opt/venv/lib/python3.12/site-packages/python_dotenv-1.2.4.dist-info/METADATA     │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.841Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ opt/venv/lib/python3.12/site-packages/pyyaml-6.0.3.dist-info/METADATA            │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ opt/venv/lib/python3.12/site-packages/starlette-1.9.0.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ opt/venv/lib/python3.12/site-packages/typing_extensions-4.16.0.dist-info/METADA- │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] │ TA                                                                               │            │                 │         │
+[2026-10-23T13:01:10.842Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ opt/venv/lib/python3.12/site-packages/typing_inspection-0.4.4.dist-info/METADATA │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ opt/venv/lib/python3.12/site-packages/uvicorn-0.54.0.dist-info/METADATA          │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ opt/venv/lib/python3.12/site-packages/uvloop-0.23.0.dist-info/METADATA           │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ opt/venv/lib/python3.12/site-packages/watchfiles-1.3.0.dist-info/METADATA        │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ opt/venv/lib/python3.12/site-packages/websockets-17.3.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T13:01:10.842Z] │ usr/local/lib/python3.12/site-packages/pip-25.0.1.dist-info/METADATA             │ python-pkg │        0        │    -    │
+[2026-10-23T13:01:10.842Z] └──────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────────────┴─────────┘
+[2026-10-23T13:01:10.842Z] Legend:
+[2026-10-23T13:01:10.842Z] - '-': Not scanned
+[2026-10-23T13:01:10.842Z] - '0': Clean (no security findings detected)
+[2026-10-23T13:01:10.842Z] 
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (SBOM generation)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T13:01:11.374Z] + hostname
+[2026-10-23T13:01:11.374Z] + docker run --rm --volumes-from 00e9419be5b1 -v /var/run/docker.sock:/var/run/docker.sock -v devsecops-platform-trivy-cache:/root/.cache/trivy -w /var/jenkins_home/workspace/devsecops-platform-pipeline aquasec/trivy:latest image --format cyclonedx --output sbom.cdx.json devsecops-platform-app:3-5bc0c3e
+[2026-10-23T13:01:11.627Z] 2026-10-23T13:01:11Z	INFO	"--format cyclonedx" disables security scanning. Specify "--scanners vuln" explicitly if you want to include vulnerabilities in the "cyclonedx" report.
+[2026-10-23T13:01:12.544Z] 2026-10-23T13:01:12Z	WARN	Third-party SBOM may lead to inaccurate vulnerability detection
+[2026-10-23T13:01:12.544Z] 2026-10-23T13:01:12Z	WARN	Recommend using Trivy to generate SBOMs
+[2026-10-23T13:01:12.798Z] 2026-10-23T13:01:12Z	INFO	[python] Licenses acquired from one or more METADATA files may be subject to additional terms. Use `--debug` flag to see all affected packages.
+[2026-10-23T13:01:13.053Z] 2026-10-23T13:01:12Z	INFO	Detected OS	family="debian" version="13.7"
+[2026-10-23T13:01:13.059Z] 2026-10-23T13:01:12Z	INFO	Number of language-specific files	num=1
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] archiveArtifacts
+[2026-10-23T13:01:13.424Z] Archiving artifacts
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish image)
+Stage "Publish image" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build summary)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] writeFile
+[Pipeline] echo
+[2026-10-23T13:01:13.843Z] # Build Summary
+[2026-10-23T13:01:13.843Z] 
+[2026-10-23T13:01:13.843Z] - Commit: 5bc0c3eb64bf9a9989cef7b686eb2225377af5de (5bc0c3e)
+[2026-10-23T13:01:13.843Z] - Build: #3
+[2026-10-23T13:01:13.843Z] - Branch: n/a
+[2026-10-23T13:01:13.843Z] - Image: devsecops-platform-app:3-5bc0c3e
+[2026-10-23T13:01:13.843Z] - Publish requested: false
+[2026-10-23T13:01:13.843Z] - Coverage threshold: 80%
+[2026-10-23T13:01:13.843Z] - Max allowed image severity: CRITICAL
+[2026-10-23T13:01:13.843Z] - Result: SUCCESS
+[2026-10-23T13:01:13.843Z] 
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] archiveArtifacts
+[2026-10-23T13:01:13.872Z] Archiving artifacts
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] sh
+[2026-10-23T13:01:14.201Z] + docker rmi devsecops-platform-app:3-5bc0c3e devsecops-platform-app:latest-local
+[2026-10-23T13:01:14.202Z] Untagged: devsecops-platform-app:3-5bc0c3e
+[2026-10-23T13:01:14.453Z] Untagged: devsecops-platform-app:latest-local
+[2026-10-23T13:01:14.453Z] Deleted: sha256:b327b34a0fcb34e70996279e985708061d4e7326583ead4d25024be6d46d69f0
+[2026-10-23T13:01:14.453Z] Deleted: sha256:10b0c0cf81fa522fb41ce38289c1c866d5f7159b89354a4eed5db4ef3f672016
+[2026-10-23T13:01:14.453Z] Deleted: sha256:d3859851c4a4ddaa37a8d6e7e59d6bb4554b06cf0756d96acc96487c1d53c7e3
+[2026-10-23T13:01:14.453Z] Deleted: sha256:9ff42437172d0288f5cfd41df38c225cd61949da582c4e7328345c058559223f
+[2026-10-23T13:01:14.453Z] Deleted: sha256:8127a7746cddff147c579b94251b04ec6d6b781b3f45250546591023d8e2423e
+[2026-10-23T13:01:14.453Z] Deleted: sha256:944d3112ca3274367c9db9942cbe861eea156518340010e6527f734f6d474a3b
+[2026-10-23T13:01:14.453Z] Deleted: sha256:749f264f0f06f55bb514aafc3bf88ff03b8b7f2745849ab2efc2c2553b97b74d
+[2026-10-23T13:01:14.453Z] Deleted: sha256:a66c72144b061e8fe6ad082619bba471698afcfa9a0b51933db0bf41dd356949
+[2026-10-23T13:01:14.453Z] Deleted: sha256:fcb72962fdaf3ebde61bba4e89302de6c3dfa358c3fc1c546c0cbc3aff3933bc
+[Pipeline] cleanWs
+[2026-10-23T13:01:14.494Z] [WS-CLEANUP] Deleting project workspace...
+[2026-10-23T13:01:14.494Z] [WS-CLEANUP] Deferred wipeout is used...
+[2026-10-23T13:01:14.506Z] [WS-CLEANUP] done
+[Pipeline] echo
+[2026-10-23T13:01:14.531Z] Build #3 succeeded for 5bc0c3e.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

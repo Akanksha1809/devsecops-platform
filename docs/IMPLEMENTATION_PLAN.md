@@ -75,8 +75,8 @@ Sequence for "developer pushes code" (documented fully, with a real Mermaid sequ
 
 | Phase | Deliverable | Verification | Status |
 |---|---|---|---|
-| 1 | FastAPI app, tests, Dockerfile, local docker run | `pytest` green, container runs, `/health` `/ready` `/metrics` curl-verified | **In progress this session** |
-| 2 | Jenkinsfile (declarative, staged), run against local Jenkins container | A real Jenkins build executed locally, screenshots/log captured | Not started |
+| 1 | FastAPI app, tests, Dockerfile, local docker run | `pytest` green, container runs, `/health` `/ready` `/metrics` curl-verified | **Done** |
+| 2 | Jenkinsfile (declarative, staged), run against local Jenkins container | Build #3 of `devsecops-platform-pipeline` ran green end-to-end: 18/18 tests, coverage gate (97.79% ≥ 80%), gitleaks (0 leaks), trivy fs + image scans (0 CRITICAL), checkov (1 soft-failed, documented), image built, CycloneDX SBOM generated. Evidence in `docs/evidence/phase2-build3-*`. Publish-to-GHCR stage exists but is parameter-gated off by default (see below). | **Done** |
 | 3 | Kubernetes manifests + Helm chart, deployed to a fresh kind cluster manually | `kubectl get pods` healthy, smoke-tested via port-forward | Not started |
 | 4 | Argo CD install + GitOps repo structure, reconciliation demo | Controlled manual drift corrected by Argo CD, observed | Not started |
 | 5 | Argo Rollouts canary, deliberate bad release, abort/rollback | Rollout dashboard/CLI shows abort, old version still serving | Not started |
@@ -93,6 +93,21 @@ Work proceeds one phase at a time; each phase ends with a report of what was act
 - GHCR free tier used for image publishing (requires a GitHub PAT — manual step, see Phase 2 notes).
 - No cloud resources created. Terraform's only default-enabled target is local (kind cluster config / local files). A cloud module may be added later, disabled by default, never applied without explicit approval.
 - No paid vulnerability DBs — Trivy's free, offline-capable DB; limitations of DB freshness documented in `docs/SECURITY.md`.
+
+## 4a. Phase 2 notes — Jenkins operational details, an incident, and what's deferred
+
+**Running it:** `cd docker/jenkins && docker-compose up -d` (copy `.env.example` to `.env` first). UI at `http://localhost:8080`, login `admin` / the password in `.env`. The pipeline job `devsecops-platform-pipeline` polls GitHub every 5 minutes (`H/5 * * * *`) instead of using a webhook — Jenkins is on localhost, so GitHub cannot reach it; manual "Build Now" or the REST API (`/job/.../buildWithParameters`) are the other two trigger paths, documented fully in `docs/PIPELINE_WALKTHROUGH.md` once that's written (Phase 9).
+
+**Incident during setup (fully resolved, no data lost):** the first `docker-compose up -d` for this project's Jenkins container used Compose's default (directory-derived) project name, which collided with an unrelated project's Jenkins compose setup (`AI Platform Assistant`) — both directories are named `jenkins` and both define a service named `jenkins`, so Compose matched and replaced that project's existing (already-stopped) container. Its named data volume was never touched, and the container was recreated from it with no loss, but it's the reason this project's `docker-compose.yml` now pins an explicit `name: devsecops-platform` at the top — every resource it creates is prefixed with that, so this can't happen again in either direction.
+
+**Three real bugs found and fixed by actually running the pipeline** (not caught by review — only by execution, which is why this phase insisted on a real build, not just a lint of the Jenkinsfile):
+1. `gitleaks detect --no-git` scans the working tree including gitignored files, so it flagged the local-only `docker/jenkins/.env` Jenkins password as a leak. Fixed by scanning git history instead (the correct behavior for a commit gate anyway) — gitignored files were never a commit risk.
+2. `env.GIT_COMMIT` was read in the top-level `environment{}` block, which evaluates *before* the Checkout stage runs — it was always null. Fixed by computing `env.SHORT_SHA`/`env.IMAGE_TAG` inside Checkout's `script{}` block after `checkout scm`.
+3. Plain top-level Groovy `def` variables (`JENKINS_CID`, then `PIP_CACHE_VOLUME`) do not reliably survive from one declarative stage into a later one under Jenkins' CPS runtime — both caused `MissingPropertyException` build failures. Fixed by resolving the container ID fresh via shell `$(hostname)` on every call, and inlining the cache-volume name as a literal, rather than caching either in a shared script variable.
+
+**Deferred / not yet done:**
+- **GHCR publish is real but untested end-to-end.** The `Publish image` stage exists, is parameter-gated (`PUBLISH_IMAGE`, default `false`), and gracefully falls back to "image stays local-only" if the `ghcr-credentials` Jenkins credential is absent — which it currently is. The existing `gh` CLI token (scopes: `gist`, `read:org`, `repo`, `workflow`) lacks `write:packages`, so it cannot push to GHCR as-is. To actually exercise this stage: create a classic GitHub PAT with `write:packages`+`read:packages`, add it to Jenkins (Manage Jenkins → Credentials → add a "Username with password" credential with ID `ghcr-credentials`, username = GitHub username, password = the PAT), then re-run with `PUBLISH_IMAGE=true`. Not done yet because it needs a credential only the user can create (never asked to paste secrets into chat) — tracked as a Phase 2 follow-up, not blocking Phase 3.
+- Multibranch/PR-safe publish gating (`github-branch-source` plugin) was deliberately skipped in favor of a single-branch job pointed at `main` — there are no PR builds yet, so "never publish from an untrusted PR" is satisfied by construction rather than by a branch condition. Revisit if/when PR builds are added.
 
 ## 5. Open questions / manual steps the user must do
 

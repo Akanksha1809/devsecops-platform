@@ -2,9 +2,24 @@
 
 A production-style, fully free/open-source CI/CD platform built as a portfolio project: Jenkins → security gates → Argo CD → Argo Rollouts → Prometheus/Grafana, running locally on `kind`. No paid services, no always-on cloud resources.
 
-**Status: Phase 1 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
+**Status: Phase 2 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
 
-## What exists right now (Phase 1 — verified)
+## What exists right now (Phases 1–2 — verified)
+
+### CI (Jenkins)
+
+Jenkins runs as a container (`docker/jenkins/`) that only has `docker-cli` baked into it — every pipeline tool (python, gitleaks, trivy, checkov) runs as its own short-lived sibling container reached via `docker run --volumes-from <jenkins-container>`, so Jenkins' own image stays small. The `Jenkinsfile` pipeline: checkout → install deps (cached) → lint/format → unit tests → integration tests → coverage + threshold gate → gitleaks → trivy (deps) → checkov (IaC, soft-fail) → build image → trivy (image, fails on CRITICAL) → CycloneDX SBOM → optional GHCR publish → build summary.
+
+This has actually been run: build #3 of `devsecops-platform-pipeline` finished green with 18/18 tests, 97.79% coverage, 0 leaks, 0 CRITICAL vulnerabilities, and a real SBOM — evidence archived at [docs/evidence/](docs/evidence/). GHCR publish is wired but not yet exercised (needs a PAT with `write:packages`, which the existing `gh` token doesn't have — see IMPLEMENTATION_PLAN.md §4a); it falls back to "image stays local" gracefully when that credential is missing.
+
+```bash
+cd docker/jenkins
+cp .env.example .env   # set JENKINS_ADMIN_PASSWORD
+docker-compose up -d
+# UI at http://localhost:8080
+```
+
+### App (Phase 1)
 
 - `app/` — a FastAPI service (`devsecops-platform-app`) with:
   - `GET /health` (liveness), `GET /ready` (readiness — can be forced unhealthy via `APP_SIMULATE_UNHEALTHY=true`, used later for rollout-failure demos)
@@ -33,4 +48,4 @@ make run-image   # http://localhost:8000
 
 ## Not built yet
 
-Jenkins pipeline, Kubernetes manifests, Argo CD/Rollouts, monitoring stack, Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+Kubernetes manifests, Argo CD/Rollouts, monitoring stack, Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
