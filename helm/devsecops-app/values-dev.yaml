@@ -3,7 +3,7 @@ namespace: devsecops-dev
 # 4 divides cleanly into 25/50/100%) to 2 now that that's done — frees
 # real RAM for Phase 6's monitoring stack on this 8GB machine, while 2
 # still demonstrates multi-replica load distribution in dashboards.
-replicaCount: 0 # TEMPORARY: Phase 6 alert-firing test (AppUnavailable), see docs/IMPLEMENTATION_PLAN.md §4e. Revert to 2.
+replicaCount: 2
 app:
   logLevel: DEBUG
   version: "0.2.0"
