@@ -63,6 +63,14 @@ spec:
             # requires.
             - name: VAULT_ADDR
               value: "http://127.0.0.1:8200"
+            # The entrypoint's setcap(cap_ipc_lock) step needs
+            # CAP_SETFCAP, which `capabilities.drop: ["ALL"]` below
+            # removes -- confirmed by reading the real entrypoint script
+            # (docker run --entrypoint cat .../docker-entrypoint.sh),
+            # which documents SKIP_SETCAP as the supported way to skip
+            # it. mlock isn't needed in dev mode anyway.
+            - name: SKIP_SETCAP
+              value: "true"
           ports:
             - name: http
               containerPort: 8200
