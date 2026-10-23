@@ -1,3 +1,7 @@
+# Every metric name and label referenced below was verified for real
+# against this cluster's running Prometheus (via its HTTP query API)
+# before being written here — not assumed from documentation or memory.
+# See docs/IMPLEMENTATION_PLAN.md §4e for what was checked and how.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,4 +9,82 @@ metadata:
   namespace: monitoring
 data:
   rules.yml: |
-    groups: []
+    groups:
+      - name: devsecops-app
+        rules:
+          - alert: AppUnavailable
+            expr: sum(up{job="kubernetes-pods", app="devsecops-app"}) == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "devsecops-app has no healthy scrape targets"
+              description: "No devsecops-app pod has responded to a Prometheus scrape for 1m. The app is very likely down."
+
+          - alert: HighErrorRate
+            # 5% sustained over 5m: loose enough not to fire on a single
+            # transient blip, tight enough to catch a real regression on
+            # a low-traffic demo app. Tune per real traffic volume.
+            expr: |
+              (
+                sum(rate(http_requests_total{namespace="devsecops-dev", status=~"5.."}[5m]))
+                /
+                sum(rate(http_requests_total{namespace="devsecops-dev"}[5m]))
+              ) > 0.05
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "devsecops-app 5xx rate above 5%"
+              description: "More than 5% of requests have returned a 5xx in the last 5m."
+
+          - alert: HighLatency
+            # 500ms p95: generous for a tiny in-memory-store demo app;
+            # exists to catch a real regression, not to be a tight SLO.
+            expr: |
+              histogram_quantile(0.95,
+                sum(rate(http_request_duration_seconds_bucket{namespace="devsecops-dev"}[5m])) by (le)
+              ) > 0.5
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "devsecops-app p95 latency above 500ms"
+              description: "95th percentile request latency has exceeded 500ms for 5m."
+
+          - alert: RolloutDegraded
+            # Backed by Argo Rollouts' own rollout_info_replicas_unavailable
+            # metric -- real detection of a failed/stuck rollout, not an
+            # approximation via core Deployment metrics (this workload is
+            # a Rollout, which kube-state-metrics doesn't model).
+            expr: rollout_info_replicas_unavailable{namespace="devsecops-dev"} > 0
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "devsecops-app Rollout has unavailable replicas"
+              description: "Argo Rollouts reports {{ $value }} unavailable replica(s) for devsecops-app for 2m -- check `kubectl argo rollouts get rollout devsecops-app -n devsecops-dev`."
+
+      - name: node-resources
+        rules:
+          - alert: NodeMemoryPressure
+            # 15% available: tuned for THIS specific 8GB/5GiB-Colima-VM
+            # machine (see docs/IMPLEMENTATION_PLAN.md Sec1) -- it's genuinely
+            # been this tight more than once during this project's own
+            # development. Not a generic production threshold.
+            expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.15
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Node memory available below 15%"
+              description: "Available memory on the kind node has been below 15% for 5m."
+
+          - alert: NodeCPUPressure
+            expr: (100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 85
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Node CPU usage above 85%"
+              description: "Node CPU busy time has exceeded 85% (averaged across cores) for 5m."
