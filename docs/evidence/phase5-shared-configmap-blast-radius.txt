@@ -1,0 +1,68 @@
+Name:             devsecops-app-6d4945948b-b4fp7
+Namespace:        devsecops-dev
+Priority:         0
+Service Account:  devsecops-app
+Node:             devsecops-platform-control-plane/172.18.0.3
+Start Time:       Fri, 23 Oct 2026 19:16:28 +0530
+Labels:           app.kubernetes.io/instance=devsecops-app-dev
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=devsecops-app
+                  app.kubernetes.io/version=0.2.0
+                  rollouts-pod-template-hash=6d4945948b
+Annotations:      checksum/config: 309979aec5f88a50559812cf6180952394e48b28ecd62ffa9bef1150f7691376
+Status:           Running
+SeccompProfile:   RuntimeDefault
+IP:               10.244.0.36
+IPs:
+  IP:           10.244.0.36
+Controlled By:  ReplicaSet/devsecops-app-6d4945948b
+Containers:
+  devsecops-app:
+    Container ID:   containerd://2849ee2f471a635839c8c2697390b6b4654b13391f725db3fef150c7702f98fb
+    Image:          devsecops-platform-app:dev
+    Image ID:       docker.io/library/import-2026-10-23@sha256:8ff54269afb6272232d232a2399ceea021f373657ae66e76c50afae4fb5b380e
+    Port:           8000/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Running
+      Started:      Fri, 23 Oct 2026 19:16:29 +0530
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     250m
+      memory:  128Mi
+    Requests:
+      cpu:      50m
+      memory:   64Mi
+    Liveness:   http-get http://:http/health delay=3s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:http/ready delay=3s timeout=1s period=5s #success=1 #failure=3
+    Startup:    http-get http://:http/health delay=0s timeout=1s period=2s #success=1 #failure=15
+    Environment Variables from:
+      devsecops-app-config  ConfigMap  Optional: false
+    Environment:            <none>
+    Mounts:
+      /tmp from tmp (rw)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  tmp:
+    Type:        EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:      
+    SizeLimit:   <unset>
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  77s                default-scheduler  Successfully assigned devsecops-dev/devsecops-app-6d4945948b-b4fp7 to devsecops-platform-control-plane
+  Normal   Pulled     76s                kubelet            spec.containers{devsecops-app}: Container image "devsecops-platform-app:dev" already present on machine and can be accessed by the pod
+  Normal   Created    76s                kubelet            spec.containers{devsecops-app}: Container created
+  Normal   Started    76s                kubelet            spec.containers{devsecops-app}: Container started
+  Warning  Unhealthy  73s (x2 over 75s)  kubelet            spec.containers{devsecops-app}: Startup probe failed: Get "http://10.244.0.36:8000/health": dial tcp 10.244.0.36:8000: connect: connection refused
+  Warning  Unhealthy  5s (x14 over 70s)  kubelet            spec.containers{devsecops-app}: Readiness probe failed: HTTP probe failed with statuscode: 503

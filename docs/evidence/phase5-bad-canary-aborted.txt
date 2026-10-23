@@ -1,0 +1,72 @@
+Name:            devsecops-app
+Namespace:       devsecops-dev
+Status:          [31m✖[0m Degraded
+Message:         RolloutAborted: Rollout aborted update to revision 3: ReplicaSet "devsecops-app-68f554ddb9" has timed out progressing.
+Strategy:        Canary
+  Step:          0/6
+  SetWeight:     0
+  ActualWeight:  0
+Images:          devsecops-platform-app:dev ([32mstable[0m)
+Replicas:
+  Desired:       4
+  Current:       4
+  Updated:       0
+  Ready:         3
+  Available:     3
+
+NAME                                       KIND         STATUS         AGE    INFO
+⟳ devsecops-app                            Rollout      [31m✖[0m Degraded     10m    
+├──# revision:3                                                               
+│  └──⧉ [33mdevsecops-app-68f554ddb9[0m           ReplicaSet   [0m•[0m ScaledDown   4m10s  [33mcanary[0m
+├──# revision:2                                                               
+│  ├──⧉ [32mdevsecops-app-6d4945948b[0m           ReplicaSet   [94m◌[0m Progressing  9m31s  [32mstable[0m
+│  │  ├──□ devsecops-app-6d4945948b-gcrmf  Pod          [32m✔[0m Running      5m57s  ready:1/1
+│  │  ├──□ devsecops-app-6d4945948b-m58cm  Pod          [32m✔[0m Running      5m30s  ready:1/1
+│  │  ├──□ devsecops-app-6d4945948b-xhkrw  Pod          [32m✔[0m Running      5m13s  ready:1/1
+│  │  └──□ devsecops-app-6d4945948b-b4fp7  Pod          [32m✔[0m Running      77s    ready:0/1
+│  ├──α [0mdevsecops-app-6d4945948b-2-2[0m       AnalysisRun  [31m⚠[0m Error        9m13s  [31m⚠[0m 5
+│  └──α [0mdevsecops-app-6d4945948b-2-2.1[0m     AnalysisRun  [32m✔[0m Successful   5m40s  [32m✔[0m 3
+└──# revision:1                                                               
+   └──⧉ devsecops-app-647c4d6f66           ReplicaSet   [0m•[0m ScaledDown   10m    
+[
+    {
+        "lastTransitionTime": "2026-10-23T13:42:32Z",
+        "lastUpdateTime": "2026-10-23T13:42:32Z",
+        "message": "Rollout is paused",
+        "reason": "RolloutPaused",
+        "status": "False",
+        "type": "Paused"
+    },
+    {
+        "lastTransitionTime": "2026-10-23T13:43:35Z",
+        "lastUpdateTime": "2026-10-23T13:43:35Z",
+        "message": "Rollout is not healthy",
+        "reason": "RolloutHealthy",
+        "status": "False",
+        "type": "Healthy"
+    },
+    {
+        "lastTransitionTime": "2026-10-23T13:43:35Z",
+        "lastUpdateTime": "2026-10-23T13:43:35Z",
+        "message": "RolloutCompleted",
+        "reason": "RolloutCompleted",
+        "status": "False",
+        "type": "Completed"
+    },
+    {
+        "lastTransitionTime": "2026-10-23T13:43:35Z",
+        "lastUpdateTime": "2026-10-23T13:43:35Z",
+        "message": "Rollout does not have minimum availability",
+        "reason": "AvailableReason",
+        "status": "False",
+        "type": "Available"
+    },
+    {
+        "lastTransitionTime": "2026-10-23T13:46:28Z",
+        "lastUpdateTime": "2026-10-23T13:46:28Z",
+        "message": "Rollout aborted update to revision 3: ReplicaSet \"devsecops-app-68f554ddb9\" has timed out progressing.",
+        "reason": "RolloutAborted",
+        "status": "False",
+        "type": "Progressing"
+    }
+]

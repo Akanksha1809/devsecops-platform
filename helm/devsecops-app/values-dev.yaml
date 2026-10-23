@@ -6,9 +6,10 @@ namespace: devsecops-dev
 replicaCount: 4
 app:
   logLevel: DEBUG
-  version: "0.3.0-bad"
-  # Deliberately unhealthy release (Phase 5's abort/rollback scenario):
-  # flips /ready to 503. The canary AnalysisTemplate probes exactly this,
-  # so this should fail the analysis and abort before 100% promotion —
-  # see docs/IMPLEMENTATION_PLAN.md §4d for the real, observed outcome.
-  simulateUnhealthy: true
+  version: "0.2.0"
+  # Reverted after the Phase 5 bad-release demo (was 0.3.0-bad /
+  # simulateUnhealthy: true). Discovered the hard way that
+  # APP_SIMULATE_UNHEALTHY is shared config, not per-revision — see
+  # docs/IMPLEMENTATION_PLAN.md §4d's "shared ConfigMap blast radius"
+  # finding before reusing this toggle for a future demo.
+  simulateUnhealthy: false
