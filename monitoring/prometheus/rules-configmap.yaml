@@ -13,13 +13,21 @@ data:
       - name: devsecops-app
         rules:
           - alert: AppUnavailable
-            expr: sum(up{job="kubernetes-pods", app="devsecops-app"}) == 0
+            # NOT `sum(up{...}) == 0` -- verified empirically (see
+            # docs/IMPLEMENTATION_PLAN.md Sec4e) that it only catches a target
+            # that's present in service discovery but failing to scrape; it
+            # goes completely silent (empty vector, never matches) once the
+            # target vanishes from SD entirely -- e.g. scaled to 0 replicas,
+            # which is the more common and more severe failure. absent(...)
+            # over an `== 1` filter catches both: no series at all, or a
+            # series that exists but isn't exactly 1.
+            expr: absent(up{job="kubernetes-pods", app="devsecops-app"} == 1)
             for: 1m
             labels:
               severity: critical
             annotations:
               summary: "devsecops-app has no healthy scrape targets"
-              description: "No devsecops-app pod has responded to a Prometheus scrape for 1m. The app is very likely down."
+              description: "No devsecops-app pod has responded to a Prometheus scrape as up for 1m. The app is very likely down."
 
           - alert: HighErrorRate
             # 5% sustained over 5m: loose enough not to fire on a single
