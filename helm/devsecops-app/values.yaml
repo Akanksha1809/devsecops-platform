@@ -62,6 +62,26 @@ rollingUpdate:
   maxUnavailable: 0
   maxSurge: 1
 
+# Canary is this project's one progressive-delivery strategy (the brief
+# allows picking one as the main demo and leaving a second, e.g.
+# blue-green, as a documented-but-unbuilt extension — see
+# docs/IMPLEMENTATION_PLAN.md §4d for why). No traffic-routing plugin
+# (Istio/nginx/ALB/SMI) is installed, so setWeight approximates traffic
+# split by replica ratio behind the shared Service — canaryService/
+# stableService below exist only so the AnalysisTemplate can target the
+# canary pods specifically, independent of that shared Service.
+canary:
+  canaryServiceName: devsecops-app-canary
+  stableServiceName: devsecops-app-stable
+  analysisTemplateName: devsecops-app-canary-health
+  steps:
+    - setWeight: 25
+    - pauseSeconds: 10
+    - runAnalysis: true
+    - setWeight: 50
+    - pauseSeconds: 10
+    - setWeight: 100
+
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 999

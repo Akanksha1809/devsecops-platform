@@ -1,0 +1,26 @@
+# Explicit verification, not "Kubernetes accepted the manifest": this
+# AnalysisTemplate is what actually gates canary promotion. It probes the
+# canary-only Service's /ready endpoint and fails the step (aborting the
+# rollout, see rollout.yaml's canary.steps) the moment the canary reports
+# unhealthy — this is how the deliberately-bad-release scenario in
+# docs/IMPLEMENTATION_PLAN.md §4d is detected and stopped automatically.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ .Values.canary.analysisTemplateName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "devsecops-app.labels" . | nindent 4 }}
+spec:
+  metrics:
+    - name: canary-ready-probe
+      count: 3
+      interval: 5s
+      failureLimit: 0
+      provider:
+        web:
+          url: "http://{{ .Values.canary.canaryServiceName }}.{{ .Values.namespace }}.svc.cluster.local:{{ .Values.service.port }}/ready"
+          timeoutSeconds: 5
+          jsonPath: "{$}"
+      successCondition: "result.status == 'ready'"
+      failureCondition: "result.status != 'ready'"

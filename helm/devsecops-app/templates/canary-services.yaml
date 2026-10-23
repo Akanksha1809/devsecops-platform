@@ -1,0 +1,34 @@
+# Argo Rollouts manages these Services' selectors at runtime (injecting a
+# rollouts-pod-template-hash label to target only canary or only stable
+# pods) — they exist so the AnalysisTemplate can probe the canary version
+# specifically, independent of the main Service which mixes both during a
+# rollout (no traffic-routing plugin is installed; see values.yaml).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.canary.canaryServiceName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "devsecops-app.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "devsecops-app.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.canary.stableServiceName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "devsecops-app.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "devsecops-app.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http

@@ -1,5 +1,7 @@
-apiVersion: apps/v1
-kind: Deployment
+# A Rollout, not a plain Deployment — Argo Rollouts drives progressive
+# delivery (canary) for this workload. See docs/IMPLEMENTATION_PLAN.md §4d.
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ include "devsecops-app.name" . }}
   namespace: {{ .Values.namespace }}
@@ -8,10 +10,22 @@ metadata:
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
-      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+    canary:
+      canaryService: {{ .Values.canary.canaryServiceName }}
+      stableService: {{ .Values.canary.stableServiceName }}
+      steps:
+        {{- range .Values.canary.steps }}
+        {{- if hasKey . "setWeight" }}
+        - setWeight: {{ .setWeight }}
+        {{- else if hasKey . "pauseSeconds" }}
+        - pause:
+            duration: {{ printf "%ds" (.pauseSeconds | int) | quote }}
+        {{- else if hasKey . "runAnalysis" }}
+        - analysis:
+            templates:
+              - templateName: {{ $.Values.canary.analysisTemplateName }}
+        {{- end }}
+        {{- end }}
   selector:
     matchLabels:
       {{- include "devsecops-app.selectorLabels" . | nindent 6 }}
