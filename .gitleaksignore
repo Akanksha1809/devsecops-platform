@@ -1,0 +1,10 @@
+# Fingerprints allowlisted after manual review -- NOT a way to silence
+# gitleaks broadly, only to acknowledge a SPECIFIC historical finding
+# that's been assessed and confirmed safe. See
+# docs/FAILURE_SCENARIOS.md Scenario 3 and Scenario 9 for the full story:
+# deleting a file in a later commit does not remove it from git history,
+# so a deliberately-committed disposable test fixture keeps getting
+# flagged forever unless explicitly allowlisted here (the non-destructive
+# alternative to rewriting published history).
+284e9d6155152eb2ad634dc2d711faf5b37a7722:security/fixtures/fake-aws-credentials.txt:aws-access-token:12
+284e9d6155152eb2ad634dc2d711faf5b37a7722:security/fixtures/fake-aws-credentials.txt:generic-api-key:13
