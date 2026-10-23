@@ -2,9 +2,22 @@
 
 A production-style, fully free/open-source CI/CD platform built as a portfolio project: Jenkins → security gates → Argo CD → Argo Rollouts → Prometheus/Grafana, running locally on `kind`. No paid services, no always-on cloud resources.
 
-**Status: Phase 7 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
+**Status: Phase 8 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
 
-## What exists right now (Phases 1–7 — verified)
+## What exists right now (Phases 1–8 — verified)
+
+### Secrets management (Vault)
+
+Vault (`vault/`, dev mode — explicitly not a production configuration, see [docs/SECURITY.md](docs/SECURITY.md) §7a) demonstrates real secret injection with no static Vault token anywhere in this repo: the app's initContainer authenticates via the Kubernetes auth method using its own ServiceAccount identity, receives a policy-scoped token good for 5 minutes, fetches one secret, and writes it to a shared volume the main container reads. The main container itself still has zero Kubernetes API access — verified directly (`ls /var/run/secrets/kubernetes.io/` → "No such file or directory"), not assumed from the YAML. A file audit device logs every login and read (values HMAC-hashed, not plaintext).
+
+Three real pod crashes were hit and fixed by actually reading the Vault container's entrypoint script rather than guessing flags — full account in [docs/IMPLEMENTATION_PLAN.md §4g](docs/IMPLEMENTATION_PLAN.md).
+
+```bash
+cd terraform/environments/local
+export VAULT_ADDR=http://localhost:18200   # via: kubectl -n vault port-forward svc/vault 18200:8200
+export VAULT_TOKEN=$(kubectl -n vault logs deployment/vault --tail=50 | grep "Root Token:" | awk '{print $NF}')
+terraform apply   # bootstraps the KV mount, the demo secret, the K8s auth role, and the audit device
+```
 
 ### Security posture & Terraform bootstrap
 
@@ -101,4 +114,4 @@ make run-image   # http://localhost:8000
 
 ## Not built yet
 
-Vault and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+The 9 acceptance scenarios from the brief, plus the final docs/demo-script/resume-bullets deliverables — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).

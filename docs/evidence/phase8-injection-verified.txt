@@ -1,0 +1,28 @@
+NAME                             READY   STATUS    RESTARTS   AGE   IP            NODE                               NOMINATED NODE   READINESS GATES
+devsecops-app-7447ff7bc9-6h5x2   1/1     Running   0          29s   10.244.0.63   devsecops-platform-control-plane   <none>           <none>
+devsecops-app-7447ff7bc9-mh7ck   1/1     Running   0          68s   10.244.0.62   devsecops-platform-control-plane   <none>           <none>
+
+=== main container has no K8s API token ===
+ls /var/run/secrets/kubernetes.io/ -> No such file or directory (confirmed)
+
+=== fetched secret content, read from the main container's shared mount ===
+{
+  "request_id": "44619313-d816-6933-2240-f0b30ceaecb7",
+  "lease_id": "",
+  "lease_duration": 0,
+  "renewable": false,
+  "data": {
+    "data": {
+      "example_api_key": "demo-value-not-a-real-credential"
+    },
+    "metadata": {
+      "created_time": "2026-10-23T15:45:01.592021116Z",
+      "custom_metadata": null,
+      "deletion_time": "",
+      "destroyed": false,
+      "version": 1
+    }
+  },
+  "warnings": null,
+  "mount_type": "kv"
+}
