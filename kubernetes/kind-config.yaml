@@ -1,0 +1,14 @@
+# Single-node kind cluster (control-plane doubles as worker) — deliberately
+# not multi-node, to roughly halve the per-cluster memory footprint on an
+# 8 GB host that is already running another kind cluster (see
+# docs/IMPLEMENTATION_PLAN.md §1). extraPortMappings exposes NodePort 30080
+# on localhost so the app is reachable without kubectl port-forward.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: devsecops-platform
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP

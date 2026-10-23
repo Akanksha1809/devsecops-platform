@@ -1,0 +1,10 @@
+NAME                                 READY   STATUS    RESTARTS   AGE     IP           NODE                               NOMINATED NODE   READINESS GATES
+pod/devsecops-app-6664f766b8-w2qc9   1/1     Running   0          7m43s   10.244.0.5   devsecops-platform-control-plane   <none>           <none>
+
+NAME                    TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE     SELECTOR
+service/devsecops-app   NodePort   10.96.233.60   <none>        8000:30080/TCP   7m43s   app.kubernetes.io/instance=devsecops-app,app.kubernetes.io/name=devsecops-app
+
+NAME                            READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS      IMAGES                       SELECTOR
+deployment.apps/devsecops-app   1/1     1            1           7m43s   devsecops-app   devsecops-platform-app:dev   app.kubernetes.io/instance=devsecops-app,app.kubernetes.io/name=devsecops-app
+--- security checks (kubectl exec) ---
+uid=999(app) gid=999(app) groups=999(app)

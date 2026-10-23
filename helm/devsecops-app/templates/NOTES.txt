@@ -1,0 +1,9 @@
+devsecops-app deployed to namespace {{ .Values.namespace }}.
+
+Reach it:
+  kubectl -n {{ .Values.namespace }} port-forward svc/{{ include "devsecops-app.name" . }} 8000:{{ .Values.service.port }}
+  curl http://localhost:8000/health
+
+Or, since this chart's default Service type is NodePort and the kind
+cluster maps it to the host:
+  curl http://localhost:{{ .Values.service.nodePort }}/health

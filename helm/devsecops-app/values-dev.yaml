@@ -1,0 +1,4 @@
+namespace: devsecops-dev
+replicaCount: 1
+app:
+  logLevel: DEBUG

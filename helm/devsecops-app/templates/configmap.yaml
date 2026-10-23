@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "devsecops-app.name" . }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "devsecops-app.labels" . | nindent 4 }}
+data:
+  APP_LOG_LEVEL: {{ .Values.app.logLevel | quote }}
+  APP_SIMULATE_UNHEALTHY: {{ .Values.app.simulateUnhealthy | quote }}
+  APP_VERSION: {{ .Values.app.version | quote }}
+  APP_GIT_SHA: {{ .Values.app.gitSha | quote }}

@@ -1,0 +1,90 @@
+# Base defaults. values-dev.yaml / values-staging.yaml override only what
+# actually differs per environment (replica count, log level, namespace) —
+# see docs/ARCHITECTURE.md for why Helm was chosen over Kustomize here.
+
+nameOverride: "devsecops-app"
+namespace: devsecops-dev
+
+replicaCount: 1
+
+# IfNotPresent, not Always: no environment in this project pulls from a
+# real registry yet (kind load docker-image loads a local image that was
+# never pushed anywhere — GHCR publish exists in the Jenkinsfile but isn't
+# exercised, see IMPLEMENTATION_PLAN.md §4a). checkov (CKV_K8S_15) flags
+# this as a finding; accepted and documented, not fixed, because Always
+# would just fail to pull on every environment this project currently has.
+# Revisit once Argo CD deploys from GHCR images in Phase 4.
+image:
+  repository: devsecops-platform-app
+  tag: dev
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+service:
+  type: NodePort
+  port: 8000
+  nodePort: 30080
+
+app:
+  logLevel: INFO
+  simulateUnhealthy: false
+  # version/gitSha are overridden at deploy time by CI with the real build
+  # identifiers (see Jenkinsfile) — these are placeholders for local/manual use.
+  version: "0.1.0"
+  gitSha: "local"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 3
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    path: /ready
+    initialDelaySeconds: 3
+    periodSeconds: 5
+    failureThreshold: 3
+  startup:
+    path: /health
+    periodSeconds: 2
+    failureThreshold: 15 # 30s to come up before liveness starts counting
+
+rollingUpdate:
+  maxUnavailable: 0
+  maxSurge: 1
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  runAsGroup: 999
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: false
+
+networkPolicy:
+  # kind's default CNI (kindnet) does not enforce NetworkPolicy — this
+  # manifest documents intended least-privilege traffic rules and validates
+  # against the schema, but enforcement would require swapping in Calico/
+  # Cilium, which this project skips to stay inside the RAM budget (see
+  # docs/IMPLEMENTATION_PLAN.md §1). Kept enabled by default anyway: it's
+  # free to apply and becomes real the moment a policy-enforcing CNI is used.
+  enabled: true

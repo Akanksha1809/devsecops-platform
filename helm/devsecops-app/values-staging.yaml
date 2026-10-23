@@ -1,0 +1,6 @@
+namespace: devsecops-staging
+replicaCount: 2
+service:
+  nodePort: 30081
+app:
+  logLevel: INFO

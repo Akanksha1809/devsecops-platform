@@ -2,9 +2,20 @@
 
 A production-style, fully free/open-source CI/CD platform built as a portfolio project: Jenkins → security gates → Argo CD → Argo Rollouts → Prometheus/Grafana, running locally on `kind`. No paid services, no always-on cloud resources.
 
-**Status: Phase 2 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
+**Status: Phase 3 of 9 complete.** See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the full phase plan, environment constraints (this is built and tested on an 8 GB RAM machine — that ceiling shapes several design choices), and what's verified vs. not yet built. This README will grow a full architecture/setup/troubleshooting section as later phases land; it does not yet document components that don't exist.
 
-## What exists right now (Phases 1–2 — verified)
+## What exists right now (Phases 1–3 — verified)
+
+### Kubernetes (kind + Helm)
+
+A dedicated single-node kind cluster (`kubernetes/kind-config.yaml`, cluster name `devsecops-platform` — separate from any other kind cluster on the machine) runs the app via the Helm chart in `helm/devsecops-app/`, with separate `values-dev.yaml`/`values-staging.yaml` overlays (namespace, replica count). Security posture actually verified by `kubectl exec`, not just declared: runs as UID 999 (non-root), root filesystem is genuinely read-only, no ServiceAccount token mounted. A NetworkPolicy is included and checkov-validated but **not enforced** — kind's default CNI doesn't implement NetworkPolicy; see IMPLEMENTATION_PLAN.md §4b. No Ingress, HPA, or PDB yet — each is deliberately deferred with a documented reason, not silently skipped.
+
+```bash
+kind create cluster --config kubernetes/kind-config.yaml
+kind load docker-image devsecops-platform-app:dev --name devsecops-platform
+helm install devsecops-app helm/devsecops-app -n devsecops-dev -f helm/devsecops-app/values-dev.yaml --create-namespace
+kubectl -n devsecops-dev port-forward svc/devsecops-app 8000:8000   # see §4b for why port-forward, not the NodePort
+```
 
 ### CI (Jenkins)
 
@@ -48,4 +59,4 @@ make run-image   # http://localhost:8000
 
 ## Not built yet
 
-Kubernetes manifests, Argo CD/Rollouts, monitoring stack, Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+Argo CD/Rollouts, monitoring stack, Terraform, Vault, and the 9 acceptance scenarios from the brief — tracked phase-by-phase in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: devsecops-app
+description: The FastAPI demo app (tasks API), deployed via this chart for dev/staging on kind.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

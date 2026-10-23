@@ -1,0 +1,186 @@
+---
+# Source: devsecops-app/templates/networkpolicy.yaml
+# NOTE: kind's default CNI (kindnet) does not enforce NetworkPolicy — see
+# docs/IMPLEMENTATION_PLAN.md §1 and values.yaml's networkPolicy comment.
+# This documents and validates the intended rules; it does not currently
+# block any traffic on this cluster.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: devsecops-app
+  namespace: devsecops-dev
+  labels:
+    app.kubernetes.io/name: devsecops-app
+    app.kubernetes.io/instance: devsecops-app
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: devsecops-app
+      app.kubernetes.io/instance: devsecops-app
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # The app has no external dependencies — DNS is the only egress it
+    # genuinely needs. Kept this tight deliberately rather than opening
+    # egress broadly "just in case".
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+# Source: devsecops-app/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: devsecops-app
+  namespace: devsecops-dev
+  labels:
+    app.kubernetes.io/name: devsecops-app
+    app.kubernetes.io/instance: devsecops-app
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: false
+
+---
+# Source: devsecops-app/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devsecops-app-config
+  namespace: devsecops-dev
+  labels:
+    app.kubernetes.io/name: devsecops-app
+    app.kubernetes.io/instance: devsecops-app
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  APP_LOG_LEVEL: "DEBUG"
+  APP_SIMULATE_UNHEALTHY: "false"
+  APP_VERSION: "0.1.0"
+  APP_GIT_SHA: "local"
+
+---
+# Source: devsecops-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: devsecops-app
+  namespace: devsecops-dev
+  labels:
+    app.kubernetes.io/name: devsecops-app
+    app.kubernetes.io/instance: devsecops-app
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: devsecops-app
+    app.kubernetes.io/instance: devsecops-app
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      nodePort: 30080
+
+---
+# Source: devsecops-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devsecops-app
+  namespace: devsecops-dev
+  labels:
+    app.kubernetes.io/name: devsecops-app
+    app.kubernetes.io/instance: devsecops-app
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: devsecops-app
+      app.kubernetes.io/instance: devsecops-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: devsecops-app
+        app.kubernetes.io/instance: devsecops-app
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: devsecops-app
+      automountServiceAccountToken: false
+      securityContext:
+        runAsGroup: 999
+        runAsNonRoot: true
+        runAsUser: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: devsecops-app
+          image: "devsecops-platform-app:dev"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: devsecops-app-config
+          resources:
+            limits:
+              cpu: 250m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 2
+            failureThreshold: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
