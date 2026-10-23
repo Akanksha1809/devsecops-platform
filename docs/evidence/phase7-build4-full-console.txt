@@ -1,0 +1,761 @@
+Started by an SCM change
+Started by user admin
+Obtained Jenkinsfile from git https://github.com/Akanksha1809/devsecops-platform.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/jenkins_home/workspace/devsecops-platform-pipeline
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/Akanksha1809/devsecops-platform.git
+ > git init /var/jenkins_home/workspace/devsecops-platform-pipeline # timeout=10
+Fetching upstream changes from https://github.com/Akanksha1809/devsecops-platform.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/Akanksha1809/devsecops-platform.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/Akanksha1809/devsecops-platform.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision f061eb27088e62aa2672f6e9e1004c58a14e8ae3 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f f061eb27088e62aa2672f6e9e1004c58a14e8ae3 # timeout=10
+Commit message: "Phase 6 complete: monitoring stack verified with a real alert fire/resolve"
+ > git rev-list --no-walk 5bc0c3eb64bf9a9989cef7b686eb2225377af5de # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timeout
+Timeout set to expire in 30 min
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+[2026-10-23T15:11:29.383Z] Selected Git installation does not exist. Using Default
+[2026-10-23T15:11:29.389Z] The recommended git tool is: NONE
+[2026-10-23T15:11:29.390Z] No credentials specified
+[2026-10-23T15:11:29.391Z]  > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/devsecops-platform-pipeline/.git # timeout=10
+[2026-10-23T15:11:29.455Z] Fetching changes from the remote Git repository
+[2026-10-23T15:11:29.472Z]  > git config remote.origin.url https://github.com/Akanksha1809/devsecops-platform.git # timeout=10
+[2026-10-23T15:11:29.488Z] Fetching upstream changes from https://github.com/Akanksha1809/devsecops-platform.git
+[2026-10-23T15:11:29.488Z]  > git --version # timeout=10
+[2026-10-23T15:11:29.500Z]  > git --version # 'git version 2.47.3'
+[2026-10-23T15:11:29.501Z]  > git fetch --tags --force --progress -- https://github.com/Akanksha1809/devsecops-platform.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-10-23T15:11:30.314Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-10-23T15:11:30.343Z] Checking out Revision f061eb27088e62aa2672f6e9e1004c58a14e8ae3 (refs/remotes/origin/main)
+[2026-10-23T15:11:30.344Z]  > git config core.sparsecheckout # timeout=10
+[2026-10-23T15:11:30.350Z]  > git checkout -f f061eb27088e62aa2672f6e9e1004c58a14e8ae3 # timeout=10
+[2026-10-23T15:11:30.369Z] Commit message: "Phase 6 complete: monitoring stack verified with a real alert fire/resolve"
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:11:30.974Z] + git rev-parse --short=7 HEAD
+[Pipeline] sh
+[2026-10-23T15:11:31.462Z] + docker volume create devsecops-platform-pip-cache
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Install deps)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:11:32.629Z] + hostname
+[2026-10-23T15:11:32.631Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T15:11:44.861Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T15:11:44.863Z] 
+[2026-10-23T15:11:44.863Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T15:11:44.864Z] [notice] To update, run: pip install --upgrade pip
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Lint & format)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:11:46.223Z] + hostname
+[2026-10-23T15:11:46.224Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T15:11:46.224Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T15:11:46.225Z]                         ruff check app tests
+[2026-10-23T15:11:46.225Z]                         ruff format --check app tests
+[2026-10-23T15:11:46.225Z]                     
+[2026-10-23T15:11:56.231Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T15:11:56.237Z] 
+[2026-10-23T15:11:56.237Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T15:11:56.237Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T15:11:56.237Z] All checks passed!
+[2026-10-23T15:11:56.237Z] 13 files already formatted
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit tests)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:11:58.072Z] + hostname
+[2026-10-23T15:11:58.074Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T15:11:58.074Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T15:11:58.074Z]                         pytest tests -m "not integration" --junitxml=unit-results.xml
+[2026-10-23T15:11:58.075Z]                     
+[2026-10-23T15:12:08.070Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T15:12:08.071Z] 
+[2026-10-23T15:12:08.071Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T15:12:08.071Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T15:12:10.021Z] ============================= test session starts ==============================
+[2026-10-23T15:12:10.023Z] platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+[2026-10-23T15:12:10.023Z] rootdir: /var/jenkins_home/workspace/devsecops-platform-pipeline
+[2026-10-23T15:12:10.023Z] configfile: pyproject.toml
+[2026-10-23T15:12:10.023Z] plugins: cov-7.1.0, anyio-4.15.1
+[2026-10-23T15:12:10.023Z] collected 23 items / 3 deselected / 20 selected
+[2026-10-23T15:12:10.023Z] 
+[2026-10-23T15:12:10.023Z] tests/test_health.py .....                                               [ 25%]
+[2026-10-23T15:12:10.298Z] tests/test_tasks.py ..........                                           [ 75%]
+[2026-10-23T15:12:10.299Z] tests/test_webhooks.py .....                                             [100%]
+[2026-10-23T15:12:10.299Z] 
+[2026-10-23T15:12:10.299Z] =============================== warnings summary ===============================
+[2026-10-23T15:12:10.299Z] ../../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+[2026-10-23T15:12:10.299Z]   /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+[2026-10-23T15:12:10.299Z]     from starlette.testclient import TestClient as TestClient  # noqa
+[2026-10-23T15:12:10.299Z] 
+[2026-10-23T15:12:10.299Z] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[2026-10-23T15:12:10.299Z] - generated xml file: /var/jenkins_home/workspace/devsecops-platform-pipeline/unit-results.xml -
+[2026-10-23T15:12:10.301Z] ================= 20 passed, 3 deselected, 1 warning in 0.18s ==================
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] junit
+[2026-10-23T15:12:11.239Z] Recording test results
+[2026-10-23T15:12:11.425Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Integration tests)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:12:11.942Z] + hostname
+[2026-10-23T15:12:11.950Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T15:12:11.950Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T15:12:11.950Z]                         pytest tests -m integration --junitxml=integration-results.xml
+[2026-10-23T15:12:11.950Z]                     
+[2026-10-23T15:12:27.072Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T15:12:27.082Z] 
+[2026-10-23T15:12:27.082Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T15:12:27.082Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T15:12:27.349Z] ============================= test session starts ==============================
+[2026-10-23T15:12:27.349Z] platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+[2026-10-23T15:12:27.349Z] rootdir: /var/jenkins_home/workspace/devsecops-platform-pipeline
+[2026-10-23T15:12:27.349Z] configfile: pyproject.toml
+[2026-10-23T15:12:27.349Z] plugins: cov-7.1.0, anyio-4.15.1
+[2026-10-23T15:12:27.349Z] collected 23 items / 20 deselected / 3 selected
+[2026-10-23T15:12:27.349Z] 
+[2026-10-23T15:12:27.609Z] tests/test_integration.py ...                                            [100%]
+[2026-10-23T15:12:27.610Z] 
+[2026-10-23T15:12:27.610Z] =============================== warnings summary ===============================
+[2026-10-23T15:12:27.610Z] ../../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+[2026-10-23T15:12:27.610Z]   /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+[2026-10-23T15:12:27.610Z]     from starlette.testclient import TestClient as TestClient  # noqa
+[2026-10-23T15:12:27.610Z] 
+[2026-10-23T15:12:27.610Z] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[2026-10-23T15:12:27.610Z] - generated xml file: /var/jenkins_home/workspace/devsecops-platform-pipeline/integration-results.xml -
+[2026-10-23T15:12:27.610Z] ================= 3 passed, 20 deselected, 1 warning in 0.23s ==================
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] junit
+[2026-10-23T15:12:29.702Z] Recording test results
+[2026-10-23T15:12:29.761Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Coverage)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:12:30.190Z] + hostname
+[2026-10-23T15:12:30.196Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T15:12:30.196Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T15:12:30.196Z]                         pytest tests --cov=app --cov-report=xml --cov-report=html --cov-report=term
+[2026-10-23T15:12:30.196Z]                     
+[2026-10-23T15:12:40.183Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T15:12:40.444Z] 
+[2026-10-23T15:12:40.444Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T15:12:40.444Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T15:12:43.708Z] ============================= test session starts ==============================
+[2026-10-23T15:12:43.710Z] platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+[2026-10-23T15:12:43.710Z] rootdir: /var/jenkins_home/workspace/devsecops-platform-pipeline
+[2026-10-23T15:12:43.710Z] configfile: pyproject.toml
+[2026-10-23T15:12:43.710Z] plugins: cov-7.1.0, anyio-4.15.1
+[2026-10-23T15:12:43.710Z] collected 23 items
+[2026-10-23T15:12:43.710Z] 
+[2026-10-23T15:12:43.710Z] tests/test_health.py .....                                               [ 21%]
+[2026-10-23T15:12:43.710Z] tests/test_integration.py ...                                            [ 34%]
+[2026-10-23T15:12:43.967Z] tests/test_tasks.py ..........                                           [ 78%]
+[2026-10-23T15:12:44.220Z] tests/test_webhooks.py .....                                             [100%]
+[2026-10-23T15:12:44.220Z] 
+[2026-10-23T15:12:44.220Z] =============================== warnings summary ===============================
+[2026-10-23T15:12:44.220Z] ../../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+[2026-10-23T15:12:44.220Z]   /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+[2026-10-23T15:12:44.221Z]     from starlette.testclient import TestClient as TestClient  # noqa
+[2026-10-23T15:12:44.221Z] 
+[2026-10-23T15:12:44.221Z] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[2026-10-23T15:12:44.221Z] ================================ tests coverage ================================
+[2026-10-23T15:12:44.221Z] _______________ coverage: platform linux, python 3.12.15-final-0 _______________
+[2026-10-23T15:12:44.221Z] 
+[2026-10-23T15:12:44.221Z] Name                      Stmts   Miss  Cover
+[2026-10-23T15:12:44.221Z] ---------------------------------------------
+[2026-10-23T15:12:44.221Z] app/__init__.py               0      0   100%
+[2026-10-23T15:12:44.221Z] app/config.py                 9      0   100%
+[2026-10-23T15:12:44.221Z] app/logging_config.py        19      1    95%
+[2026-10-23T15:12:44.221Z] app/main.py                  34      0   100%
+[2026-10-23T15:12:44.221Z] app/metrics.py               17      0   100%
+[2026-10-23T15:12:44.221Z] app/routers/__init__.py       0      0   100%
+[2026-10-23T15:12:44.221Z] app/routers/tasks.py         58      1    98%
+[2026-10-23T15:12:44.221Z] app/routers/webhooks.py      48      0   100%
+[2026-10-23T15:12:44.221Z] ---------------------------------------------
+[2026-10-23T15:12:44.221Z] TOTAL                       185      2    99%
+[2026-10-23T15:12:44.221Z] Coverage HTML written to dir htmlcov
+[2026-10-23T15:12:44.221Z] Coverage XML written to file coverage.xml
+[2026-10-23T15:12:44.221Z] ======================== 23 passed, 1 warning in 0.69s =========================
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] archiveArtifacts
+[2026-10-23T15:12:46.208Z] Archiving artifacts
+[Pipeline] publishHTML
+[2026-10-23T15:12:46.326Z] [htmlpublisher] Archiving HTML reports...
+[2026-10-23T15:12:46.339Z] [htmlpublisher] Archiving at BUILD level /var/jenkins_home/workspace/devsecops-platform-pipeline/htmlcov to Coverage_20Report
+[2026-10-23T15:12:46.340Z] [htmlpublisher] Copying recursive using current thread
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Quality gate: coverage threshold)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:12:47.129Z] + hostname
+[2026-10-23T15:12:47.131Z] + docker run --rm --volumes-from 00e9419be5b1 -v devsecops-platform-pip-cache:/root/.cache/pip -w /var/jenkins_home/workspace/devsecops-platform-pipeline python:3.12-slim sh -c 
+[2026-10-23T15:12:47.131Z]                         pip install --quiet --cache-dir /root/.cache/pip -r requirements-dev.txt
+[2026-10-23T15:12:47.131Z]                         pytest tests --cov=app --cov-fail-under=80 -q
+[2026-10-23T15:12:47.131Z]                     
+[2026-10-23T15:12:59.414Z] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[2026-10-23T15:12:59.419Z] 
+[2026-10-23T15:12:59.419Z] [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[2026-10-23T15:12:59.419Z] [notice] To update, run: pip install --upgrade pip
+[2026-10-23T15:13:01.556Z] .......................                                                  [100%]
+[2026-10-23T15:13:01.560Z] =============================== warnings summary ===============================
+[2026-10-23T15:13:01.560Z] ../../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+[2026-10-23T15:13:01.561Z]   /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+[2026-10-23T15:13:01.561Z]     from starlette.testclient import TestClient as TestClient  # noqa
+[2026-10-23T15:13:01.561Z] 
+[2026-10-23T15:13:01.561Z] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[2026-10-23T15:13:01.561Z] ================================ tests coverage ================================
+[2026-10-23T15:13:01.561Z] _______________ coverage: platform linux, python 3.12.15-final-0 _______________
+[2026-10-23T15:13:01.561Z] 
+[2026-10-23T15:13:01.561Z] Name                      Stmts   Miss  Cover
+[2026-10-23T15:13:01.561Z] ---------------------------------------------
+[2026-10-23T15:13:01.561Z] app/__init__.py               0      0   100%
+[2026-10-23T15:13:01.561Z] app/config.py                 9      0   100%
+[2026-10-23T15:13:01.561Z] app/logging_config.py        19      1    95%
+[2026-10-23T15:13:01.561Z] app/main.py                  34      0   100%
+[2026-10-23T15:13:01.561Z] app/metrics.py               17      0   100%
+[2026-10-23T15:13:01.561Z] app/routers/__init__.py       0      0   100%
+[2026-10-23T15:13:01.561Z] app/routers/tasks.py         58      1    98%
+[2026-10-23T15:13:01.561Z] app/routers/webhooks.py      48      0   100%
+[2026-10-23T15:13:01.561Z] ---------------------------------------------
+[2026-10-23T15:13:01.561Z] TOTAL                       185      2    99%
+[2026-10-23T15:13:01.562Z] Required test coverage of 80% reached. Total coverage: 98.92%
+[2026-10-23T15:13:01.562Z] 23 passed, 1 warning in 0.35s
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Secret scan (gitleaks))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:13:03.248Z] + hostname
+[2026-10-23T15:13:03.254Z] + docker run --rm --volumes-from 00e9419be5b1 -w /var/jenkins_home/workspace/devsecops-platform-pipeline zricethezav/gitleaks:latest detect --source=. -v --report-path=gitleaks-report.json --exit-code 1
+[2026-10-23T15:13:03.820Z] 
+[2026-10-23T15:13:03.824Z]     ○
+[2026-10-23T15:13:03.824Z]     │╲
+[2026-10-23T15:13:03.824Z]     │ ○
+[2026-10-23T15:13:03.824Z]     ○ ░
+[2026-10-23T15:13:03.824Z]     ░    gitleaks
+[2026-10-23T15:13:03.824Z] 
+[2026-10-23T15:13:04.395Z] [90m3:13PM[0m [32mINF[0m [1m22 commits scanned.[0m
+[2026-10-23T15:13:04.396Z] [90m3:13PM[0m [32mINF[0m [1mscanned ~609372 bytes (609.37 KB) in 405ms[0m
+[2026-10-23T15:13:04.396Z] [90m3:13PM[0m [32mINF[0m [1mno leaks found[0m
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] archiveArtifacts
+[2026-10-23T15:13:04.930Z] Archiving artifacts
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Dependency vulnerability scan (trivy))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:13:05.384Z] + hostname
+[2026-10-23T15:13:05.387Z] + docker run --rm --volumes-from 00e9419be5b1 -w /var/jenkins_home/workspace/devsecops-platform-pipeline -v devsecops-platform-trivy-cache:/root/.cache/trivy aquasec/trivy:latest fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format table requirements.txt
+[2026-10-23T15:13:06.749Z] 2026-10-23T15:13:06Z	INFO	[vuln] Vulnerability scanning is enabled
+[2026-10-23T15:13:06.753Z] 2026-10-23T15:13:06Z	WARN	[pip] Unable to find python `site-packages` directory. License detection is skipped.	err="unable to find path to Python executable"
+[2026-10-23T15:13:06.753Z] 2026-10-23T15:13:06Z	INFO	Number of language-specific files	num=1
+[2026-10-23T15:13:06.753Z] 2026-10-23T15:13:06Z	INFO	[pip] Detecting vulnerabilities...
+[2026-10-23T15:13:06.754Z] 
+[2026-10-23T15:13:06.754Z] Report Summary
+[2026-10-23T15:13:06.754Z] 
+[2026-10-23T15:13:06.754Z] ┌──────────────────┬──────┬─────────────────┐
+[2026-10-23T15:13:06.754Z] │      Target      │ Type │ Vulnerabilities │
+[2026-10-23T15:13:06.754Z] ├──────────────────┼──────┼─────────────────┤
+[2026-10-23T15:13:06.754Z] │ requirements.txt │ pip  │        0        │
+[2026-10-23T15:13:06.754Z] └──────────────────┴──────┴─────────────────┘
+[2026-10-23T15:13:06.754Z] Legend:
+[2026-10-23T15:13:06.754Z] - '-': Not scanned
+[2026-10-23T15:13:06.754Z] - '0': Clean (no security findings detected)
+[2026-10-23T15:13:06.754Z] 
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (IaC security scan (checkov))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:13:07.592Z] + hostname
+[2026-10-23T15:13:07.596Z] + docker run --rm --volumes-from 00e9419be5b1 -w /var/jenkins_home/workspace/devsecops-platform-pipeline bridgecrew/checkov:latest --directory . --skip-path .venv --compact --quiet --soft-fail
+[2026-10-23T15:13:25.711Z] dockerfile scan results:
+[2026-10-23T15:13:25.713Z] 
+[2026-10-23T15:13:25.713Z] Passed checks: 115, Failed checks: 1, Skipped checks: 0
+[2026-10-23T15:13:25.713Z] 
+[2026-10-23T15:13:25.713Z] Check: CKV_DOCKER_8: "Ensure the last USER is not root"
+[2026-10-23T15:13:25.713Z] 	FAILED for resource: /docker/jenkins/Dockerfile.USER
+[2026-10-23T15:13:25.713Z] 	File: /docker/jenkins/Dockerfile:3-3
+[2026-10-23T15:13:25.713Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/docker-policies/docker-policy-index/ensure-the-last-user-is-not-root
+[2026-10-23T15:13:25.713Z] kubernetes scan results:
+[2026-10-23T15:13:25.713Z] 
+[2026-10-23T15:13:25.713Z] Passed checks: 630, Failed checks: 40, Skipped checks: 0
+[2026-10-23T15:13:25.713Z] 
+[2026-10-23T15:13:25.713Z] Check: CKV_K8S_38: "Ensure that Service Account Tokens are only mounted where necessary"
+[2026-10-23T15:13:25.713Z] 	FAILED for resource: Deployment.monitoring.grafana
+[2026-10-23T15:13:25.713Z] 	File: /monitoring/grafana/deployment.yaml:4-82
+[2026-10-23T15:13:25.713Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-35
+[2026-10-23T15:13:25.713Z] Check: CKV_K8S_8: "Liveness Probe Should be Configured"
+[2026-10-23T15:13:25.713Z] 	FAILED for resource: Deployment.monitoring.grafana
+[2026-10-23T15:13:25.713Z] 	File: /monitoring/grafana/deployment.yaml:4-82
+[2026-10-23T15:13:25.713Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-7
+[2026-10-23T15:13:25.713Z] Check: CKV_K8S_43: "Image should use digest"
+[2026-10-23T15:13:25.713Z] 	FAILED for resource: Deployment.monitoring.grafana
+[2026-10-23T15:13:25.713Z] 	File: /monitoring/grafana/deployment.yaml:4-82
+[2026-10-23T15:13:25.713Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-39
+[2026-10-23T15:13:25.713Z] Check: CKV_K8S_35: "Prefer using secrets as files over secrets as environment variables"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: Deployment.monitoring.grafana
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/grafana/deployment.yaml:4-82
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-33
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_15: "Image Pull Policy should be Always"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: Deployment.monitoring.grafana
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/grafana/deployment.yaml:4-82
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-14
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_40: "Containers should run as a high UID to avoid host conflict"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: Deployment.monitoring.grafana
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/grafana/deployment.yaml:4-82
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-37
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_38: "Ensure that Service Account Tokens are only mounted where necessary"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-35
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_9: "Readiness Probe Should be Configured"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-8
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_31: "Ensure that the seccomp profile is set to docker/default or runtime/default"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-29
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_17: "Containers should not share the host process ID namespace"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-16
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_8: "Liveness Probe Should be Configured"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-7
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_43: "Image should use digest"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-39
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_19: "Containers should not share the host network namespace"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-18
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_15: "Image Pull Policy should be Always"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-14
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_29: "Apply security context to your pods and containers"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/ensure-securitycontext-is-applied-to-pods-and-containers
+[2026-10-23T15:13:25.714Z] Check: CKV_K8S_26: "Do not specify hostPort unless absolutely necessary"
+[2026-10-23T15:13:25.714Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.714Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.714Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-25
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_23: "Minimize the admission of root containers"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-22
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_40: "Containers should run as a high UID to avoid host conflict"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: DaemonSet.monitoring.node-exporter
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-37
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_38: "Ensure that Service Account Tokens are only mounted where necessary"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.monitoring.alertmanager
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/alertmanager/deployment.yaml:1-62
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-35
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_8: "Liveness Probe Should be Configured"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.monitoring.alertmanager
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/alertmanager/deployment.yaml:1-62
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-7
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_43: "Image should use digest"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.monitoring.alertmanager
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/alertmanager/deployment.yaml:1-62
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-39
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_15: "Image Pull Policy should be Always"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.monitoring.alertmanager
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/alertmanager/deployment.yaml:1-62
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-14
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_38: "Ensure that Service Account Tokens are only mounted where necessary"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.kube-system.kube-state-metrics
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/kube-state-metrics/manifests.yaml:118-176
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-35
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_43: "Image should use digest"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.kube-system.kube-state-metrics
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/kube-state-metrics/manifests.yaml:118-176
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-39
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_15: "Image Pull Policy should be Always"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.kube-system.kube-state-metrics
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/kube-state-metrics/manifests.yaml:118-176
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-14
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_29: "Apply security context to your pods and containers"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.kube-system.kube-state-metrics
+[2026-10-23T15:13:25.715Z] 	File: /monitoring/kube-state-metrics/manifests.yaml:118-176
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/ensure-securitycontext-is-applied-to-pods-and-containers
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_43: "Image should use digest"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.devsecops-dev.devsecops-app
+[2026-10-23T15:13:25.715Z] 	File: /docs/evidence/phase3-rendered-dev.yaml:100-186
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-39
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_15: "Image Pull Policy should be Always"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.devsecops-dev.devsecops-app
+[2026-10-23T15:13:25.715Z] 	File: /docs/evidence/phase3-rendered-dev.yaml:100-186
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-14
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_40: "Containers should run as a high UID to avoid host conflict"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.devsecops-dev.devsecops-app
+[2026-10-23T15:13:25.715Z] 	File: /docs/evidence/phase3-rendered-dev.yaml:100-186
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-37
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_43: "Image should use digest"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.devsecops-staging.devsecops-app
+[2026-10-23T15:13:25.715Z] 	File: /docs/evidence/phase3-rendered-staging.yaml:100-186
+[2026-10-23T15:13:25.715Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-39
+[2026-10-23T15:13:25.715Z] Check: CKV_K8S_15: "Image Pull Policy should be Always"
+[2026-10-23T15:13:25.715Z] 	FAILED for resource: Deployment.devsecops-staging.devsecops-app
+[2026-10-23T15:13:25.716Z] 	File: /docs/evidence/phase3-rendered-staging.yaml:100-186
+[2026-10-23T15:13:25.716Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-14
+[2026-10-23T15:13:25.716Z] Check: CKV_K8S_40: "Containers should run as a high UID to avoid host conflict"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Deployment.devsecops-staging.devsecops-app
+[2026-10-23T15:13:25.716Z] 	File: /docs/evidence/phase3-rendered-staging.yaml:100-186
+[2026-10-23T15:13:25.716Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-37
+[2026-10-23T15:13:25.716Z] Check: CKV_K8S_38: "Ensure that Service Account Tokens are only mounted where necessary"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Deployment.monitoring.prometheus
+[2026-10-23T15:13:25.716Z] 	File: /monitoring/prometheus/deployment.yaml:6-81
+[2026-10-23T15:13:25.716Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-35
+[2026-10-23T15:13:25.716Z] Check: CKV_K8S_43: "Image should use digest"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Deployment.monitoring.prometheus
+[2026-10-23T15:13:25.716Z] 	File: /monitoring/prometheus/deployment.yaml:6-81
+[2026-10-23T15:13:25.716Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-39
+[2026-10-23T15:13:25.716Z] Check: CKV_K8S_15: "Image Pull Policy should be Always"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Deployment.monitoring.prometheus
+[2026-10-23T15:13:25.716Z] 	File: /monitoring/prometheus/deployment.yaml:6-81
+[2026-10-23T15:13:25.716Z] 	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/kubernetes-policies/kubernetes-policy-index/bc-k8s-14
+[2026-10-23T15:13:25.716Z] Check: CKV2_K8S_6: "Minimize the admission of pods which lack an associated NetworkPolicy"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Pod.monitoring.grafana.app.kubernetes.io/name-grafana
+[2026-10-23T15:13:25.716Z] 	File: /monitoring/grafana/deployment.yaml:4-82
+[2026-10-23T15:13:25.716Z] Check: CKV2_K8S_6: "Minimize the admission of pods which lack an associated NetworkPolicy"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Pod.monitoring.node-exporter.app.kubernetes.io/name-node-exporter
+[2026-10-23T15:13:25.716Z] 	File: /monitoring/node-exporter/daemonset.yaml:11-78
+[2026-10-23T15:13:25.716Z] Check: CKV2_K8S_6: "Minimize the admission of pods which lack an associated NetworkPolicy"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Pod.monitoring.alertmanager.app.kubernetes.io/name-alertmanager
+[2026-10-23T15:13:25.716Z] 	File: /monitoring/alertmanager/deployment.yaml:1-62
+[2026-10-23T15:13:25.716Z] Check: CKV2_K8S_6: "Minimize the admission of pods which lack an associated NetworkPolicy"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Pod.kube-system.kube-state-metrics.app.kubernetes.io/name-kube-state-metrics
+[2026-10-23T15:13:25.716Z] 	File: /monitoring/kube-state-metrics/manifests.yaml:118-176
+[2026-10-23T15:13:25.716Z] Check: CKV2_K8S_6: "Minimize the admission of pods which lack an associated NetworkPolicy"
+[2026-10-23T15:13:25.716Z] 	FAILED for resource: Pod.monitoring.prometheus.app.kubernetes.io/name-prometheus
+[2026-10-23T15:13:25.716Z] 	File: /monitoring/prometheus/deployment.yaml:6-81
+[2026-10-23T15:13:25.716Z] helm scan results:
+[2026-10-23T15:13:25.716Z] 
+[2026-10-23T15:13:25.716Z] Passed checks: 6, Failed checks: 0, Skipped checks: 0
+[2026-10-23T15:13:25.716Z] 
+[2026-10-23T15:13:25.716Z] 
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build image)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:13:29.119Z] + docker build -t devsecops-platform-app:4-f061eb2 -t devsecops-platform-app:latest-local .
+[2026-10-23T15:13:29.120Z] DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+[2026-10-23T15:13:29.120Z]             Install the buildx component to build images with BuildKit:
+[2026-10-23T15:13:29.120Z]             https://docs.docker.com/go/buildx/
+[2026-10-23T15:13:29.120Z] 
+[2026-10-23T15:13:29.120Z] Sending build context to Docker daemon  88.58kB[2026-10-23T15:13:29.120Z] 
+[2026-10-23T15:13:29.120Z] Step 1/16 : FROM python:3.12-slim AS builder
+[2026-10-23T15:13:29.377Z]  ---> 05cda9777409
+[2026-10-23T15:13:29.378Z] Step 2/16 : WORKDIR /build
+[2026-10-23T15:13:29.630Z]  ---> Using cache
+[2026-10-23T15:13:29.631Z]  ---> 564030a8b986
+[2026-10-23T15:13:29.631Z] Step 3/16 : RUN python -m venv /opt/venv
+[2026-10-23T15:13:29.631Z]  ---> Using cache
+[2026-10-23T15:13:29.631Z]  ---> 863a3356916a
+[2026-10-23T15:13:29.631Z] Step 4/16 : ENV PATH="/opt/venv/bin:$PATH"
+[2026-10-23T15:13:29.631Z]  ---> Using cache
+[2026-10-23T15:13:29.631Z]  ---> fd428b017cf3
+[2026-10-23T15:13:29.631Z] Step 5/16 : COPY requirements.txt .
+[2026-10-23T15:13:29.631Z]  ---> Using cache
+[2026-10-23T15:13:29.631Z]  ---> f6cacd8247e2
+[2026-10-23T15:13:29.631Z] Step 6/16 : RUN pip install --no-cache-dir --upgrade pip &&     pip install --no-cache-dir -r requirements.txt
+[2026-10-23T15:13:29.631Z]  ---> Using cache
+[2026-10-23T15:13:29.631Z]  ---> 5f776308ac56
+[2026-10-23T15:13:29.631Z] Step 7/16 : FROM python:3.12-slim AS runtime
+[2026-10-23T15:13:29.631Z]  ---> 05cda9777409
+[2026-10-23T15:13:29.631Z] Step 8/16 : RUN groupadd --system app && useradd --system --gid app --no-create-home --shell /usr/sbin/nologin app
+[2026-10-23T15:13:29.889Z]  ---> Using cache
+[2026-10-23T15:13:29.889Z]  ---> f344fadfa9c0
+[2026-10-23T15:13:29.889Z] Step 9/16 : COPY --from=builder /opt/venv /opt/venv
+[2026-10-23T15:13:29.889Z]  ---> Using cache
+[2026-10-23T15:13:29.889Z]  ---> fe964f3bf719
+[2026-10-23T15:13:29.889Z] Step 10/16 : ENV PATH="/opt/venv/bin:$PATH"     PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1
+[2026-10-23T15:13:29.889Z]  ---> Using cache
+[2026-10-23T15:13:29.889Z]  ---> 7cbe1c27b056
+[2026-10-23T15:13:29.889Z] Step 11/16 : WORKDIR /app
+[2026-10-23T15:13:29.889Z]  ---> Using cache
+[2026-10-23T15:13:29.889Z]  ---> f120846c8a31
+[2026-10-23T15:13:29.889Z] Step 12/16 : COPY app ./app
+[2026-10-23T15:13:32.392Z]  ---> 0e9390a36f37
+[2026-10-23T15:13:32.393Z] Step 13/16 : USER app
+[2026-10-23T15:13:32.394Z]  ---> Running in ae217921067f
+[2026-10-23T15:13:33.757Z]  ---> Removed intermediate container ae217921067f
+[2026-10-23T15:13:33.760Z]  ---> f46bd807d547
+[2026-10-23T15:13:33.760Z] Step 14/16 : EXPOSE 8000
+[2026-10-23T15:13:33.760Z]  ---> Running in 6a41aa5061b2
+[2026-10-23T15:13:35.121Z]  ---> Removed intermediate container 6a41aa5061b2
+[2026-10-23T15:13:35.123Z]  ---> fe3570ef365f
+[2026-10-23T15:13:35.123Z] Step 15/16 : HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)" || exit 1
+[2026-10-23T15:13:35.123Z]  ---> Running in 1b6960d1f00c
+[2026-10-23T15:13:36.492Z]  ---> Removed intermediate container 1b6960d1f00c
+[2026-10-23T15:13:36.493Z]  ---> 359b58804488
+[2026-10-23T15:13:36.494Z] Step 16/16 : ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+[2026-10-23T15:13:36.494Z]  ---> Running in 43c205956e8b
+[2026-10-23T15:13:38.372Z]  ---> Removed intermediate container 43c205956e8b
+[2026-10-23T15:13:38.373Z]  ---> c76552f111a6
+[2026-10-23T15:13:38.373Z] Successfully built c76552f111a6
+[2026-10-23T15:13:38.373Z] Successfully tagged devsecops-platform-app:4-f061eb2
+[2026-10-23T15:13:38.373Z] Successfully tagged devsecops-platform-app:latest-local
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Image vulnerability scan (trivy))
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:13:38.986Z] + docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v devsecops-platform-trivy-cache:/root/.cache/trivy aquasec/trivy:latest image --severity CRITICAL --exit-code 1 --ignore-unfixed devsecops-platform-app:4-f061eb2
+[2026-10-23T15:13:39.911Z] 2026-10-23T15:13:39Z	INFO	[vuln] Vulnerability scanning is enabled
+[2026-10-23T15:13:39.912Z] 2026-10-23T15:13:39Z	INFO	[secret] Secret scanning is enabled
+[2026-10-23T15:13:39.913Z] 2026-10-23T15:13:39Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+[2026-10-23T15:13:39.913Z] 2026-10-23T15:13:39Z	INFO	[secret] Please see https://trivy.dev/docs/v0.76/guide/scanner/secret#recommendation for faster secret detection
+[2026-10-23T15:13:42.433Z] 2026-10-23T15:13:42Z	WARN	Third-party SBOM may lead to inaccurate vulnerability detection
+[2026-10-23T15:13:42.435Z] 2026-10-23T15:13:42Z	WARN	Recommend using Trivy to generate SBOMs
+[2026-10-23T15:13:42.990Z] 2026-10-23T15:13:42Z	INFO	[python] Licenses acquired from one or more METADATA files may be subject to additional terms. Use `--debug` flag to see all affected packages.
+[2026-10-23T15:13:43.245Z] 2026-10-23T15:13:42Z	INFO	Detected OS	family="debian" version="13.7"
+[2026-10-23T15:13:43.252Z] 2026-10-23T15:13:42Z	INFO	[debian] Detecting vulnerabilities...	os_version="13" pkg_num=87
+[2026-10-23T15:13:43.252Z] 2026-10-23T15:13:43Z	INFO	Number of language-specific files	num=1
+[2026-10-23T15:13:43.252Z] 2026-10-23T15:13:43Z	INFO	[python-pkg] Detecting vulnerabilities...
+[2026-10-23T15:13:43.252Z] 2026-10-23T15:13:43Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.76/guide/scanner/vulnerability#severity-selection for details.
+[2026-10-23T15:13:43.252Z] 
+[2026-10-23T15:13:43.252Z] Report Summary
+[2026-10-23T15:13:43.253Z] 
+[2026-10-23T15:13:43.253Z] ┌──────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────────────┬─────────┐
+[2026-10-23T15:13:43.254Z] │                                      Target                                      │    Type    │ Vulnerabilities │ Secrets │
+[2026-10-23T15:13:43.254Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.254Z] │ devsecops-platform-app:4-f061eb2 (debian 13.7)                                   │   debian   │        0        │    -    │
+[2026-10-23T15:13:43.254Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.254Z] │ Python                                                                           │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.254Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.254Z] │ opt/venv/lib/python3.12/site-packages/annotated_doc-0.0.5.dist-info/METADATA     │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.254Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.254Z] │ opt/venv/lib/python3.12/site-packages/annotated_types-0.8.0.dist-info/METADATA   │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.255Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.255Z] │ opt/venv/lib/python3.12/site-packages/anyio-4.15.1.dist-info/METADATA            │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.255Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.255Z] │ opt/venv/lib/python3.12/site-packages/click-8.5.0.dist-info/METADATA             │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.256Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.256Z] │ opt/venv/lib/python3.12/site-packages/fastapi-0.161.1.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.256Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.256Z] │ opt/venv/lib/python3.12/site-packages/h11-0.16.0.dist-info/METADATA              │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.256Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.258Z] │ opt/venv/lib/python3.12/site-packages/httptools-0.9.0.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.258Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.258Z] │ opt/venv/lib/python3.12/site-packages/idna-3.20.dist-info/METADATA               │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.258Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.258Z] │ opt/venv/lib/python3.12/site-packages/opentelemetry_api-1.45.1.dist-info/METADA- │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.258Z] │ TA                                                                               │            │                 │         │
+[2026-10-23T15:13:43.258Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.258Z] │ opt/venv/lib/python3.12/site-packages/pip-26.2.2.dist-info/METADATA              │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.258Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.258Z] │ opt/venv/lib/python3.12/site-packages/prometheus_client-0.26.0.dist-info/METADA- │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.258Z] │ TA                                                                               │            │                 │         │
+[2026-10-23T15:13:43.258Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.258Z] │ opt/venv/lib/python3.12/site-packages/pydantic-2.14.1.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.258Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.259Z] │ opt/venv/lib/python3.12/site-packages/pydantic_core-2.50.1.dist-info/METADATA    │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.259Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.259Z] │ opt/venv/lib/python3.12/site-packages/pydantic_settings-2.16.1.dist-info/METADA- │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.259Z] │ TA                                                                               │            │                 │         │
+[2026-10-23T15:13:43.259Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.259Z] │ opt/venv/lib/python3.12/site-packages/python_dotenv-1.2.4.dist-info/METADATA     │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.259Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.259Z] │ opt/venv/lib/python3.12/site-packages/pyyaml-6.0.3.dist-info/METADATA            │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.259Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.259Z] │ opt/venv/lib/python3.12/site-packages/starlette-1.9.0.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.259Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.260Z] │ opt/venv/lib/python3.12/site-packages/typing_extensions-4.16.0.dist-info/METADA- │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.260Z] │ TA                                                                               │            │                 │         │
+[2026-10-23T15:13:43.260Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.260Z] │ opt/venv/lib/python3.12/site-packages/typing_inspection-0.4.4.dist-info/METADATA │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.260Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.260Z] │ opt/venv/lib/python3.12/site-packages/uvicorn-0.54.0.dist-info/METADATA          │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.260Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.260Z] │ opt/venv/lib/python3.12/site-packages/uvloop-0.23.0.dist-info/METADATA           │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.260Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.260Z] │ opt/venv/lib/python3.12/site-packages/watchfiles-1.3.0.dist-info/METADATA        │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.260Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.260Z] │ opt/venv/lib/python3.12/site-packages/websockets-17.3.dist-info/METADATA         │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.261Z] ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────────────┼─────────┤
+[2026-10-23T15:13:43.263Z] │ usr/local/lib/python3.12/site-packages/pip-25.0.1.dist-info/METADATA             │ python-pkg │        0        │    -    │
+[2026-10-23T15:13:43.264Z] └──────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────────────┴─────────┘
+[2026-10-23T15:13:43.264Z] Legend:
+[2026-10-23T15:13:43.264Z] - '-': Not scanned
+[2026-10-23T15:13:43.264Z] - '0': Clean (no security findings detected)
+[2026-10-23T15:13:43.264Z] 
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (SBOM generation)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-10-23T15:13:45.460Z] + hostname
+[2026-10-23T15:13:45.467Z] + docker run --rm --volumes-from 00e9419be5b1 -v /var/run/docker.sock:/var/run/docker.sock -v devsecops-platform-trivy-cache:/root/.cache/trivy -w /var/jenkins_home/workspace/devsecops-platform-pipeline aquasec/trivy:latest image --format cyclonedx --output sbom.cdx.json devsecops-platform-app:4-f061eb2
+[2026-10-23T15:13:46.450Z] 2026-10-23T15:13:46Z	INFO	"--format cyclonedx" disables security scanning. Specify "--scanners vuln" explicitly if you want to include vulnerabilities in the "cyclonedx" report.
+[2026-10-23T15:13:49.916Z] 2026-10-23T15:13:49Z	WARN	Third-party SBOM may lead to inaccurate vulnerability detection
+[2026-10-23T15:13:49.917Z] 2026-10-23T15:13:49Z	WARN	Recommend using Trivy to generate SBOMs
+[2026-10-23T15:13:50.180Z] 2026-10-23T15:13:50Z	INFO	[python] Licenses acquired from one or more METADATA files may be subject to additional terms. Use `--debug` flag to see all affected packages.
+[2026-10-23T15:13:50.181Z] 2026-10-23T15:13:50Z	INFO	Detected OS	family="debian" version="13.7"
+[2026-10-23T15:13:50.181Z] 2026-10-23T15:13:50Z	INFO	Number of language-specific files	num=1
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] archiveArtifacts
+[2026-10-23T15:13:51.267Z] Archiving artifacts
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish image)
+Stage "Publish image" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build summary)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] writeFile
+[Pipeline] echo
+[2026-10-23T15:13:52.197Z] # Build Summary
+[2026-10-23T15:13:52.200Z] 
+[2026-10-23T15:13:52.201Z] - Commit: f061eb27088e62aa2672f6e9e1004c58a14e8ae3 (f061eb2)
+[2026-10-23T15:13:52.201Z] - Build: #4
+[2026-10-23T15:13:52.201Z] - Branch: n/a
+[2026-10-23T15:13:52.201Z] - Image: devsecops-platform-app:4-f061eb2
+[2026-10-23T15:13:52.201Z] - Publish requested: false
+[2026-10-23T15:13:52.201Z] - Coverage threshold: 80%
+[2026-10-23T15:13:52.201Z] - Max allowed image severity: CRITICAL
+[2026-10-23T15:13:52.201Z] - Result: SUCCESS
+[2026-10-23T15:13:52.201Z] 
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] archiveArtifacts
+[2026-10-23T15:13:52.290Z] Archiving artifacts
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] sh
+[2026-10-23T15:13:52.731Z] + docker rmi devsecops-platform-app:4-f061eb2 devsecops-platform-app:latest-local
+[2026-10-23T15:13:52.732Z] Untagged: devsecops-platform-app:4-f061eb2
+[2026-10-23T15:13:53.294Z] Untagged: devsecops-platform-app:latest-local
+[2026-10-23T15:13:53.295Z] Deleted: sha256:c76552f111a61588bc7bd7d1a0c1de84bb6cf9ab3f7af3dcef96d884cabf2001
+[2026-10-23T15:13:53.295Z] Deleted: sha256:359b5880448823aeaadd3de7e43dfd307ec2bf208c6882b8ca1226c8e9537f4d
+[2026-10-23T15:13:53.295Z] Deleted: sha256:fe3570ef365fe0aaf857a6c81b73ef38a95615d2539a905bc1bb3a19eb79f889
+[2026-10-23T15:13:53.295Z] Deleted: sha256:f46bd807d54721eb9cc808ff91a3c40b34c334ee59634a534dabb6bc18df3565
+[2026-10-23T15:13:53.295Z] Deleted: sha256:0e9390a36f3758f04ea8360dc81ec2e5cc1c01e787abb93119b08d5d322240c3
+[2026-10-23T15:13:53.295Z] Deleted: sha256:f120846c8a313f5f2a03f14a862b47e1e92ef8f98c43d33380c7b1a6af72ebc0
+[2026-10-23T15:13:53.296Z] Deleted: sha256:7cbe1c27b056116b0b630b502a01e1db82a205197f15fbb021668724dfbe216a
+[2026-10-23T15:13:53.296Z] Deleted: sha256:fe964f3bf719b09f285a4d715c78b0e8471dafea296151c22d454eb70f9b27e1
+[2026-10-23T15:13:53.296Z] Deleted: sha256:f344fadfa9c00bb6a96bddc59b8952a8a5b30a43b5b1162947cee48171e2d33c
+[Pipeline] cleanWs
+[2026-10-23T15:13:53.706Z] [WS-CLEANUP] Deleting project workspace...
+[2026-10-23T15:13:53.753Z] [WS-CLEANUP] Deferred wipeout is used...
+[2026-10-23T15:13:53.849Z] [WS-CLEANUP] done
+[Pipeline] echo
+[2026-10-23T15:13:53.948Z] Build #4 succeeded for f061eb2.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

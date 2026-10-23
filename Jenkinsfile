@@ -183,6 +183,25 @@ pipeline {
             }
         }
 
+        stage('Terraform fmt & validate') {
+            steps {
+                script {
+                    sh """
+                        docker run --rm --volumes-from \$(hostname) -w "\${WORKSPACE}/terraform" \\
+                            hashicorp/terraform:1.15 fmt -check -recursive
+                    """
+                    sh """
+                        docker run --rm --volumes-from \$(hostname) -w "\${WORKSPACE}/terraform/environments/local" \\
+                            hashicorp/terraform:1.15 init -input=false -backend=false
+                    """
+                    sh """
+                        docker run --rm --volumes-from \$(hostname) -w "\${WORKSPACE}/terraform/environments/local" \\
+                            hashicorp/terraform:1.15 validate
+                    """
+                }
+            }
+        }
+
         stage('IaC security scan (checkov)') {
             steps {
                 script {

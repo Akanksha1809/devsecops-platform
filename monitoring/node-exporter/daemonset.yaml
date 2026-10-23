@@ -25,8 +25,18 @@ spec:
         app.kubernetes.io/name: node-exporter
     spec:
       serviceAccountName: node-exporter
+      # node-exporter never calls the Kubernetes API -- it only reads
+      # host /proc and /sys. (checkov CKV_K8S_38)
+      automountServiceAccountToken: false
       hostNetwork: true
       hostPID: true
+      securityContext:
+        # Pod-level seccomp on top of the container-level hardening below
+        # (checkov CKV_K8S_31). hostNetwork/hostPID are unrelated to
+        # seccomp (syscall filtering, not namespace sharing) and this is
+        # compatible with node-exporter's normal operation.
+        seccompProfile:
+          type: RuntimeDefault
       tolerations:
         - effect: NoSchedule
           operator: Exists
@@ -39,9 +49,23 @@ spec:
             - --path.rootfs=/host/root
             - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
           ports:
+            # No hostPort here: hostNetwork: true above already puts this
+            # container directly on the host's network namespace, so
+            # containerPort 9100 *is* host port 9100 — an explicit
+            # hostPort would be redundant, and checkov (CKV_K8S_26) flags
+            # it as unnecessary for exactly that reason.
             - containerPort: 9100
-              hostPort: 9100
               name: http
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: http
+            initialDelaySeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: http
+            initialDelaySeconds: 10
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
