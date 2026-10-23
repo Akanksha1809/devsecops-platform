@@ -31,6 +31,12 @@ spec:
       {{- include "devsecops-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        # Forces a new ReplicaSet (and therefore a real canary rollout)
+        # when the ConfigMap's data changes — referencing a ConfigMap by
+        # name alone doesn't trigger a rollout on its own, since the pod
+        # template itself wouldn't otherwise change.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         {{- include "devsecops-app.labels" . | nindent 8 }}
     spec:

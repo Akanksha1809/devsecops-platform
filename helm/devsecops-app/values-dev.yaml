@@ -6,3 +6,4 @@ namespace: devsecops-dev
 replicaCount: 4
 app:
   logLevel: DEBUG
+  version: "0.2.0"
