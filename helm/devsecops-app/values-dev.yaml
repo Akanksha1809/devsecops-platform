@@ -6,10 +6,8 @@ namespace: devsecops-dev
 replicaCount: 2
 app:
   logLevel: DEBUG
-  version: "0.2.0"
-  # Reverted after the Phase 5 bad-release demo (was 0.3.0-bad /
-  # simulateUnhealthy: true). Discovered the hard way that
-  # APP_SIMULATE_UNHEALTHY is shared config, not per-revision — see
-  # docs/IMPLEMENTATION_PLAN.md §4d's "shared ConfigMap blast radius"
-  # finding before reusing this toggle for a future demo.
-  simulateUnhealthy: false
+  version: "0.4.0-demo-bad"
+  # TEMPORARY for the recorded demo video (docs/DEMO_SCRIPT.md) -- will
+  # revert in the next commit. See docs/IMPLEMENTATION_PLAN.md §4d's
+  # "shared ConfigMap blast radius" finding before reusing this toggle.
+  simulateUnhealthy: true
