@@ -64,6 +64,26 @@ Three distinct real causes, each confirmed by reading the actual `docker-entrypo
 
 **Fix**: re-run the pipeline whenever you want current evidence, don't assume an old green build still reflects new content.
 
+## "A script that worked fine when I typed it hangs forever when run headless/recorded"
+
+**Symptom**: `git log` (or any command that can invoke a pager) runs fine interactively but hangs indefinitely — 30+ minutes, no output — when run inside something that creates a pty without a real attached terminal (e.g. `asciinema rec --command "..."` for a headless recording).
+
+**Cause**: git detects what looks like a TTY and invokes `less` as a pager; with no real keyboard attached, `less` waits forever for input that never arrives.
+
+**Fix**: `export GIT_PAGER=cat PAGER=cat` before running anything non-interactively. Diagnosed by checking `ps aux` for the actual hung process, not assumed.
+
+## "`timeout 70 some-command` silently does nothing on macOS"
+
+**Cause**: `timeout` is a GNU coreutils command, not present on macOS by default (no `timeout`, no `gtimeout` unless coreutils is installed via brew). The command fails with "command not found" — which, inside a backgrounded/wrapped shell, can silently skip the whole line rather than visibly erroring, since the subsequent `|| true` swallows the failure.
+
+**Fix**: use a background-process-plus-`sleep`-plus-`kill` pattern instead: `cmd & PID=$!; sleep N; kill "$PID"`.
+
+## "Everything on the cluster gets flaky — probes time out, port-forwards drop, even basic `kubectl` commands hang"
+
+**Cause**: host-level CPU contention, not a bug in this project. Confirmed via `docker stats`: two kind clusters together briefly exceeded 400% CPU on a 4-CPU Colima VM, enough that even this project's own simple FastAPI app failed its own liveness probe (`context deadline exceeded`) and crash-looped — collateral damage from an unrelated process, not a regression in this app.
+
+**Fix**: `docker stats --no-stream` to confirm it's genuinely contention and not a real failure; if another project's cluster is the cause, `docker stop <that container>` (not delete) frees the CPU immediately, with the other project able to resume later via `docker start`. Always confirm with the owner before stopping another project's container — this isn't something to do unprompted.
+
 ## "`terraform plan` keeps showing a change I didn't make"
 
 **Cause**: a resource co-managed by Terraform and another controller (Argo CD's `CreateNamespace=true` stamping a `tracking-id` annotation onto a Terraform-managed namespace is this project's real example). Both tools are legitimately right about the piece they manage; neither is "wrong."
