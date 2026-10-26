@@ -4,6 +4,10 @@ A production-style, fully free/open-source DevSecOps platform, built as a portfo
 
 **Status: all 9 phases complete.** Every claim in this README and the linked docs has been executed and verified at least once — see [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the phase-by-phase record (including the real bugs found and fixed along the way, not just what went right) and [docs/evidence/](docs/evidence/) for raw console output backing every specific claim below.
 
+![Live demo: app health, GitOps status, a real canary rollout triggered and watched aborting in real time, and Vault secret injection verified end-to-end](docs/demo/demo.gif)
+
+*A real recorded terminal session — not sped up or staged (idle time between commands is compressed for watchability; see [docs/demo/demo.cast](docs/demo/demo.cast) for the raw asciinema recording with real timing, playable via `asciinema play docs/demo/demo.cast`). Walks through [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md): app health, Argo CD status, triggering a deliberately bad release, watching Argo Rollouts catch and abort it live, confirming the app never went down, and verifying Vault secret injection.*
+
 ## The problem this solves
 
 A small team shipping a service needs: automated testing and security gating before anything reaches production, a deployment mechanism that can't drift from what's declared in Git, a way to catch a bad release before it serves real traffic, visibility into whether the thing is actually healthy, and a way to inject secrets without hardcoding them — all without committing to paid tooling before knowing if the team even needs it. This project builds and verifies that full loop, end to end, on hardware modest enough (8 GB RAM) that the resource math itself had to be part of the design, not an afterthought.
@@ -94,7 +98,18 @@ See [docs/COSTS_AND_LIMITATIONS.md](docs/COSTS_AND_LIMITATIONS.md). Short versio
 
 ## Screenshots
 
-Not yet captured — this project prioritized real, scripted, reproducible verification (console logs, curl output, `kubectl` state) over screenshots, since every piece of evidence in `docs/evidence/` can be independently reproduced by re-running the same commands. Grafana/Argo CD/Argo Rollouts UI screenshots would be a reasonable addition for a more visual portfolio presentation — noted under Future enhancements.
+The demo recording above is the primary visual evidence. A few UI stills for components the terminal doesn't show directly:
+
+| | |
+|---|---|
+| ![Jenkins build #12, green, with real test-trend history](docs/demo/jenkins-build12-success.jpg) | ![Jenkins pipeline steps for that build, every step succeeded](docs/demo/jenkins-pipeline-steps.jpg) |
+| A real Jenkins build (not a mockup) | Its actual step-by-step execution |
+
+![Grafana dashboard with real live traffic — note the 5xx error ratio panel, which is genuinely reflecting a CPU-contention incident hit while recording this demo, not staged data](docs/demo/grafana-dashboard.jpg)
+
+*The Grafana dashboard, populated by real generated traffic. That 5xx error-ratio spike is honest, not cosmetic — it's the real CPU-contention incident documented in `docs/TROUBLESHOOTING.md`, visible in the data because nothing here is staged.*
+
+Not captured: Argo CD's own UI (its self-signed cert blocked the local browser tooling used to capture these) and Argo Rollouts' dashboard — the terminal recording above already shows both via `argocd`/`kubectl argo rollouts` CLI output for real.
 
 ## Future enhancements
 
@@ -104,7 +119,7 @@ Not yet captured — this project prioritized real, scripted, reproducible verif
 - Centralized logging (Loki or similar)
 - Per-component NetworkPolicies for the monitoring stack
 - Vault in HA mode with a real storage backend, as a deliberate contrast to the dev-mode setup here
-- UI screenshots for a more visual presentation
+- An Argo CD UI screenshot (blocked this time by its self-signed cert in the capture tooling used)
 
 ## Contributing
 
