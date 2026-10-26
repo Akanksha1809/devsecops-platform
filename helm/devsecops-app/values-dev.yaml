@@ -6,8 +6,5 @@ namespace: devsecops-dev
 replicaCount: 2
 app:
   logLevel: DEBUG
-  version: "0.4.0-demo-bad"
-  # TEMPORARY for the recorded demo video (docs/DEMO_SCRIPT.md) -- will
-  # revert in the next commit. See docs/IMPLEMENTATION_PLAN.md §4d's
-  # "shared ConfigMap blast radius" finding before reusing this toggle.
-  simulateUnhealthy: true
+  version: "0.2.0"
+  simulateUnhealthy: false
