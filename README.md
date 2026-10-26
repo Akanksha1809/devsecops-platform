@@ -16,6 +16,7 @@ A small team shipping a service needs: automated testing and security gating bef
 
 | Doc | What's in it |
 |---|---|
+| [docs/DEEP_DIVE.md](docs/DEEP_DIVE.md) | A single start-to-finish explainer of the whole project — read this one if you want to understand everything, not just look something up |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System diagram, push-to-deploy sequence diagram, tool-by-tool responsibility table |
 | [docs/SETUP.md](docs/SETUP.md) | Full install/bootstrap instructions, step by step |
 | [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | The phase-by-phase build log — every decision, every bug, every piece of evidence |
